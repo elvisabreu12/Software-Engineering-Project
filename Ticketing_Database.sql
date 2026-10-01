@@ -1,3 +1,7 @@
+CREATE DATABASE IF NOT EXISTS TicketingDB;
+
+USE TicketingDB;
+
 CREATE TABLE Roles (
 	RoleID INT AUTO_INCREMENT PRIMARY KEY,
     RoleName VARCHAR(50) NOT NULL
@@ -88,7 +92,7 @@ CREATE TABLE LoginAttempts (
     IsSuccess BOOLEAN,
     IpAddress VARCHAR(55),
     
-    CONSTRAINT FK_UserID
+    CONSTRAINT FK_LoginAttempts_UserID
     FOREIGN KEY (UserID)
     REFERENCES Users(UserID)
 );
