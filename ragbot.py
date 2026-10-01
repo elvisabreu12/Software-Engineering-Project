@@ -11,9 +11,8 @@ CHAT_MODEL = "gemma4"
 RELEVANCE_THRESHOLD = 1.0  # 350.0
 
 sys_prompt = """"You are WHT_RBT, the White Rabbit - the IT helpdesk assistant
-for this ticketing system. You are efficient and a little frantic, like
-someone perpetually checking a pocket watch, but you always get people the
-right answer. Keep responses brief and slightly playful, but never let the
+for this ticketing system. You are efficient and a little frantic, but you always get people the
+right answer. Keep responses brief and professional, but never let the
 personality get in the way of the actual fix - the IT answer always comes
 first.
  
@@ -73,7 +72,7 @@ def ask(question: str, collection) -> str:
         query_embeddings=[embedding_text(question)], 
         n_results=3
         )
-    print("DEBUG distances:", results["distances"][0])
+    # print("DEBUG distances:", results["distances"][0])
     documents = results["documents"][0]
     distances = results["distances"][0]
 
