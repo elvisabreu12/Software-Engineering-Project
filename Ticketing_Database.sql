@@ -96,3 +96,5 @@ CREATE TABLE LoginAttempts (
     FOREIGN KEY (UserID)
     REFERENCES Users(UserID)
 );
+
+INSERT INTO Roles(RoleName) VALUES ('End User'), ('Agent'), ('Administrator');
