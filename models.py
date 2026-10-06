@@ -6,3 +6,4 @@ class Role(Base):
 
     role_id = Column("RoleID", Integer, primary_key=True)
     role_name = Column("RoleName", String(50), nullable=False)
+    access_level = Column("AccessLevel", Integer, nullable=False)

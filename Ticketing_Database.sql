@@ -4,7 +4,8 @@ USE TicketingDB;
 
 CREATE TABLE Roles (
 	RoleID INT AUTO_INCREMENT PRIMARY KEY,
-    RoleName VARCHAR(50) NOT NULL
+    RoleName VARCHAR(50) NOT NULL,
+    AccessLevel INT NOT NULL   -- 1 = End User, 2 = Agent, 3 = Administrator
 );
 
 CREATE TABLE Users (
@@ -91,10 +92,11 @@ CREATE TABLE LoginAttempts (
     UserEmail VARCHAR(100),
     IsSuccess BOOLEAN,
     IpAddress VARCHAR(55),
+    AttemptedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
     CONSTRAINT FK_LoginAttempts_UserID
     FOREIGN KEY (UserID)
     REFERENCES Users(UserID)
 );
 
-INSERT INTO Roles(RoleName) VALUES ('End User'), ('Agent'), ('Administrator');
+INSERT INTO Roles (RoleName, AccessLevel) VALUES ('End User', 1), ('Agent', 2), ('Administrator', 3);
