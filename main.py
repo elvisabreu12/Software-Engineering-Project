@@ -5,15 +5,15 @@ from models import Category, Role, User, Ticket, Comment, InternalComment, Login
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+import chromadb
 
 app = FastAPI()
 
+# ChromaDB setup
+chroma_client = chromadb.Client()
+collection = chroma_client.create_collection(name="resolved_tickets")
 
 # Pydantic model for creating a new ticket
-
-# This is the list of fields the caller must send. FastAPI checks it automatically,
-# so a missing title or text in place of a number is rejected with a clear "ValidationError" before the code runs.
-
 class TicketCreate(BaseModel):
     title: str
     ticket_desc: Optional[str] = None
@@ -22,9 +22,27 @@ class TicketCreate(BaseModel):
     created_by_user_id: int
 
 ###
-### Endpoints to create new records in the database tables. 
-### Each endpoint uses the get_db() dependency to open a database session, 
-### and then adds a new record to the appropriate table. The new record is returned as JSON.
+### ChromaDB Functions
+###
+
+def store_resolved_ticket(ticketID: int, Title: str, InternalCommentID: str):
+    collection.add(
+        ids=[str(ticketID)],
+        documents=[InternalCommentID],
+        metadatas=[{"Title": Title, "ticketID": ticketID}]
+    )
+    return {"status": "Ticket stored in knowledge base"}
+
+def search_knowledge_base(query: str, n_results: int = 5):
+    """Search the knowledge base for similar resolved tickets"""
+    results = collection.query(
+        query_texts=[query],
+        n_results=n_results
+    )
+    return results
+
+###
+### Endpoints to create new records
 ###
 
 @app.post("/tickets")
@@ -38,33 +56,23 @@ def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db)):
         status="Open",
         created=datetime.now(),
     )
-    db.add(new_ticket) # Adds the new ticket to the database session
-    db.commit() # commits the transaction, which inserts the new row into the database
-    db.refresh(new_ticket) # refreshes the new_ticket object with the data from the database, including the auto-generated ticket_id
-    return {"ticket_id": new_ticket.ticket_id, "status": new_ticket.status} # Returns the new ticket's ID and status as a JSON response
-
+    db.add(new_ticket)
+    db.commit()
+    db.refresh(new_ticket)
+    return {"ticket_id": new_ticket.ticket_id, "status": new_ticket.status}
 
 ###
-### Endpoints to access the database tables. Each endpoint uses the get_db() dependency to open a database session, 
-### and then queries the appropriate table. The results are returned as JSON.
+### Endpoints to access the database tables
 ###
 
-# Roles
-@app.get("/roles") # defines a GET endpoint at /roles
+@app.get("/roles")
 def get_roles(db: Session = Depends(get_db)): 
-    """ 
-    Get all roles.
-    FastAPI Depends() system automatically calls get_db() to open a database session
-    before this function runs, and passes that session in as 'db'.
-    """
-    roles = db.query(Role).all() # fetch every row from the Roles table
-    return roles #Returns the list of Role objects as a JSON response
+    roles = db.query(Role).all()
+    return roles
 
-# Users
 @app.get("/users")
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
-    # Build the response by hand so the password column is never sent out
     return [
         {
             "user_id": u.user_id,
@@ -76,15 +84,13 @@ def get_users(db: Session = Depends(get_db)):
         for u in users
     ]
 
-# Categories
 @app.get("/categories")
-def get_categories(db: Session = Depends(get_db)): # defines a GET endpoint at /categories
+def get_categories(db: Session = Depends(get_db)):
     categories = db.query(Category).all()
     return categories
 
-# Tickets
 @app.get("/tickets")
-def get_tickets(db: Session = Depends(get_db)): # defines a GET endpoint at /tickets
+def get_tickets(db: Session = Depends(get_db)):
     tickets = db.query(Ticket).all()
     result = []
     for t in tickets:
@@ -101,9 +107,8 @@ def get_tickets(db: Session = Depends(get_db)): # defines a GET endpoint at /tic
         })
     return result
 
-# Comments
 @app.get("/comments")
-def get_comments(db: Session = Depends(get_db)): # defines a GET endpoint at /comments
+def get_comments(db: Session = Depends(get_db)):
     comments = db.query(Comment).all()
     result = []
     for c in comments:
@@ -116,9 +121,8 @@ def get_comments(db: Session = Depends(get_db)): # defines a GET endpoint at /co
         })
     return result
 
-# Internal Comments
 @app.get("/internal-comments")
-def get_internal_comments(db: Session = Depends(get_db)): # defines a GET endpoint at /internal-comments
+def get_internal_comments(db: Session = Depends(get_db)):
     comments = db.query(InternalComment).all()
     result = []
     for c in comments:
@@ -131,9 +135,8 @@ def get_internal_comments(db: Session = Depends(get_db)): # defines a GET endpoi
         })
     return result
 
-# Login Attempts
 @app.get("/login-attempts")
-def get_login_attempts(db: Session = Depends(get_db)): # defines a GET endpoint at /login-attempts
+def get_login_attempts(db: Session = Depends(get_db)):
     attempts = db.query(LoginAttempt).all()
     result = []
     for a in attempts:
@@ -146,3 +149,55 @@ def get_login_attempts(db: Session = Depends(get_db)): # defines a GET endpoint 
             "attempted_at": a.attempted_at,
         })
     return result
+
+@app.get("/tickets/{ticket_id}")
+def get_ticket(ticket_id: int, db: Session = Depends(get_db)):
+    """Get a single tickets information"""
+    ticket = db.query(Ticket).filter(Ticket.ticket_id == ticket_id).first()
+
+    if not ticket:
+        return {"Error": "No ticket found"}
+
+    return {
+        "ticket_id": ticket.ticket_id,
+        "title": ticket.title,
+        "description": ticket.ticket_desc,
+        "priority": ticket.priority,
+        "status": ticket.status,
+        "created": ticket.created,
+        "updated": ticket.updated,
+        "closed": ticket.closed,
+        "category": ticket.category.category_name if ticket.category else None,
+        "created_by": ticket.created_by.user_name if ticket.created_by else None,
+        "assigned_to": ticket.assigned_to.user_name if ticket.assigned_to else None,
+    }
+
+###
+### ChromaDB Endpoints
+###
+
+@app.post("/sync-resolved-tickets/")
+def sync_resolved_tickets(db: Session = Depends(get_db)):
+    """Syncs all completed tickets from SQL database to ChromaDB"""
+    try:
+        solutions = db.query(InternalComment).all()
+        
+        count = 0
+        for solution in solutions:
+            ticket = db.query(Ticket).filter(Ticket.ticket_id == solution.ticket_id).first()
+
+            if ticket:
+                store_resolved_ticket(
+                    ticketID=ticket.ticket_id,
+                    Title=ticket.title,
+                    InternalCommentID=solution.internal_comment_desc
+                )
+                count += 1
+
+        return {"status": f"Synced {count} resolved tickets to ChromaDB"}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/search-knowledge-base/")
+def search_kb(query: str, n_results: int = 5):
+    return search_knowledge_base(query, n_results)
