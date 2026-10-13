@@ -1,0 +1,89 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Dashboard</title>
+  <link rel="stylesheet" href="dash.css" />
+  <div class="sidebar">
+    <h2>WHT_RBT</h2>
+    <a href="#" class="active">Profile</a>
+    <a href="#">Overview</a>
+    <a href="#">Tickets</a>
+    <a href="#">Messages</a>
+    <a href="#">Settings</a>
+
+    <a href="homepage.html" class="logout-link">Log Out</a>
+
+  </div>
+
+  
+  <div class="main-container">
+    <header>
+      <div class="header-title">Dashboard Overview</div>
+      <button class="btn-msg" onclick="openMessageBox()">Open Message Box</button>
+    </header>
+
+    <div class="content">
+    
+      <div class="cards">
+        <div class="card">
+          <h3>Total Tickets</h3>
+          <p>13</p>
+        </div>
+        <div class="card">
+          <h3>Completed Tickets</h3>
+          <p>7</p>
+        </div>
+        <div class="card">
+          <h3>Pending Tickets</h3>
+          <p>6</p>
+        </div>
+        <div class="card">
+          <h3>Trade/Dispute Tickets</h3>
+          <p>8</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+  <div class="modal-overlay" id="msgModal">
+    <div class="message-box">
+      <div class="msg-header">
+        <span>Send New Message</span>
+        <button class="close-btn" onclick="closeMessageBox()">&times;</button>
+      </div>
+      <div class="msg-body">
+        <label for="msgText">Type your message below:</label>
+        <textarea id="msgText" placeholder="Write something..."></textarea>
+      </div>
+      <div class="msg-footer">
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('msgModal');
+
+    function openMessageBox() {
+      modal.classList.add('active');
+    }
+
+    function closeMessageBox() {
+      modal.classList.remove('active');
+    }
+
+    function sendMessage() {
+      const text = document.getElementById('msgText').value;
+      if (text.trim() === '') {
+        alert('Please enter a message.');
+        return;
+      }
+      alert('Message sent: ' + text);
+      document.getElementById('msgText').value = '';
+      closeMessageBox();
+    }
+  </script>
+</body>
+</html>
