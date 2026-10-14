@@ -172,6 +172,28 @@ def get_ticket(ticket_id: int, db: Session = Depends(get_db)):
         "assigned_to": ticket.assigned_to.user_name if ticket.assigned_to else None,
     }
 
+@app.get("/categories/{category_id}/tickets")
+def get_tickets_by_categories(category_id: int, db: Session = Depends(get_db)):
+    """Get all tickets in a specfici queue"""
+    tickets = db.query(Ticket).filter(Ticket.category_id == category_id).all()
+
+    if not tickets:
+        return {"Error": "No tickets found in this queue"}
+
+    return [
+        {
+        "ticket_id": t.ticket_id,
+        "title": t.title,
+        "description": t.ticket_desc,
+        "priority": t.priority,
+        "status": t.status,
+        "created": t.created,
+        "assigned_to": t.assigned_to.user_name if t.assigned_to else None,
+        }
+        for t in tickets
+    ]
+
+
 ###
 ### ChromaDB Endpoints
 ###
