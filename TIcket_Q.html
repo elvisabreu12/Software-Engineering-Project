@@ -1,0 +1,119 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Ticket Queue</title>
+  <link rel="stylesheet" href="Q_dash.css" />
+  <script src="index.js" defer></script>
+  <div class="sidebar">
+    <h2>WHT_RBT</h2>
+    <a href="#" class="active">Profile</a>
+    <a href="user_Dash.html" >Home</a>
+    <a href="#">Tickets</a>
+    <a href="#">Messages</a>
+    <a href="#">Settings</a>
+
+    <a href="homepage.html" class="logout-link">Log Out</a>
+
+  </div>
+
+  
+  <div class="content">
+    <header>
+      <div class="header-title">Tickets</div>
+
+    </header>
+
+    
+      <div class="ticket-section">
+            <form id="ticket-form">
+                <h2> Ticket Queue Messenger
+                <input type="text" id="name" placeholder="Name:" required><br>
+                 <input type="text" id="place" placeholder="Queue Number:" required><br>
+                  <input type="text" id="date" placeholder="Date:" required><br>
+                   <input type="text" id="from" placeholder="From:" required><br>
+                    <input type="text" id="from_location" placeholder="From Department:" required><br>
+                     <input type="text" id="to" placeholder="To Location:" required><br>
+                        Select a Urgency Level:</h2>
+    <div class="color-picker">
+    <input type="radio" id="color-red" name="color" value="red" checked>
+    <label for="color-red" class="swatch-red" title="High Prioity"></label>
+
+    <input type="radio" id="color-orange" name="color" value="orange">
+    <label for="color-orange" class="swatch-orange" title="Medium Prioity"></label>
+
+    <input type="radio" id="color-yellow" name="color" value="yellow">
+    <label for="color-yellow" class="swatch-yellow" title="Low Prioity"></label>
+
+    <input type="radio" id="color-green" name="color" value="green">
+    <label for="color-green" class="swatch-green" title="Non Prioity"></label>
+
+        </div>
+
+
+                     <textarea id="description" name="description" rows="4" cols="50" placeholder="Description:"></textarea>
+                     <input type="submit" value="Send Ticket">
+            </form>
+            <button id="viewport-btn" style="display: none;"></button>
+            <h3>Ticket Queue History</h3>
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Name</th>
+                        <th>Queue Number:</th>
+                        <th>Date:</th>
+                        <th>From:</th>
+                        <th>From Department:</th>
+                        <th>To Location</th>
+                        <th>Description:</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body">
+
+                </tbody>
+
+
+            </table>
+
+
+
+
+      </div>
+
+ 
+  
+
+</div> </script> 
+
+  <!-- <script>
+    const modal = document.getElementById('msgModal');
+
+    function openMessageBox() {
+      modal.classList.add('active');
+    }
+
+    function closeMessageBox() {
+      modal.classList.remove('active');
+    }
+
+    function sendMessage() {
+      const text = document.getElementById('msgText').value;
+      if (text.trim() === '') {
+        alert('Please enter a message.');
+        return;
+      }
+      alert('Message sent: ' + text);
+      document.getElementById('msgText').value = '';
+      closeMessageBox();
+    }
+  </script>-->
+
+
+
+
+
+
+</body>
+</html>
