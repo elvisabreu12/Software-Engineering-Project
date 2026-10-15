@@ -4,11 +4,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WHT_RBT Dashboard</title>
   <link rel="stylesheet" href="dash.css" />
+  </head>
+  <body>
   <div class="sidebar">
     <h2>WHT_RBT</h2>
+    <!--side navbar will only have access to Tickets until that is satisfactory-->
     <a href="#" class="active">Profile</a>
-    <a href="#">Overview</a>
-    <a href="#">Tickets</a>
+    <a href="user_Dash.html">Home</a>
+    <!--Tickets are linked to html page-->
+    <a href="TIcket_Q.html" >Tickets</a>
     <a href="#">Messages</a>
     <a href="#">Settings</a>
 
@@ -20,11 +24,12 @@
   <div class="main-container">
     <header>
       <div class="header-title">Dashboard Overview</div>
-      <button class="btn-msg" onclick="openMessageBox()">Open Message Box</button>
+      <button class="btn-msg" onclick="openMessageBox()">Open Quick 
+        Ticket</button>
     </header>
 
     <div class="content">
-    
+    <!-- Cards are placeholders, need backend to pull data-->
       <div class="cards">
         <div class="card">
           <h3>Total Tickets</h3>
@@ -42,6 +47,18 @@
           <h3>Trade/Dispute Tickets</h3>
           <p>8</p>
         </div>
+        <!-- specified Tickets direct from Managment -->
+        <div class="card">
+          <h3>Manager Tickets(Inbound)</h3>
+          <p>0</p>
+        </div>
+         <div class="card">
+          <h3>Manager Tickets (Outbound)</h3>
+          <p></p>
+
+
+
+
       </div>
     </div>
   </div>
@@ -66,7 +83,7 @@
   <script>
     const modal = document.getElementById('msgModal');
 
-    function openMessageBox() {
+    function openBox() {
       modal.classList.add('active');
     }
 
@@ -85,5 +102,6 @@
       closeMessageBox();
     }
   </script>
+  
 </body>
 </html>
