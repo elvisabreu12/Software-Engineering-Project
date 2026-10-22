@@ -9,7 +9,7 @@ ecdsa==0.19.2
 fastapi==0.141.1
 h11==0.16.0
 idna==3.20
-passlib==1.7.4
+#passlib==1.7.4 It creases a conflict with bcrypt==5.0.0, so I commented it out
 pyasn1==0.6.4
 pycparser==3.0
 pydantic==2.13.5
@@ -25,3 +25,4 @@ starlette==1.7.0
 typing-inspection==0.4.4
 typing_extensions==4.16.0
 uvicorn==0.54.0
+pyjwt==2.15.1
