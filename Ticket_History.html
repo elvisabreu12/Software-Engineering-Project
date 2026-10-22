@@ -1,0 +1,89 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Ticket History</title>
+  <link rel="stylesheet" href="Q_dash.css" />
+  <div class="sidebar">
+    <h2>WHT_RBT</h2>
+    <a href="#" class="active">Profile</a>
+    <a href="admin_Dash.html">Home</a>
+    <a href="Ticket_Q.html">Tickets</a>
+    <a href="#">Messages (Coming Soon)</a>
+    <a href="#">Authorization(Coming Soon)</a>
+    <a href="#">Management(Comming Soon)</a>
+    <a href="#">Settings(Comming Soon)</a>
+    <a href="homepage.html" class="logout-link">Log Out</a>
+
+  </div>
+
+  
+  <div class="main-container">
+    <header>
+      <div class="header-title">Full History Queue</div>
+      <div class="search_bar">
+      <input type="text" placeholder="search">
+      </div>
+      <button class="btn-msg" onclick="openMessageBox()">Open Message Box</button>
+    </header>
+
+     <h3>Ticket Queue History</h3>
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Name</th>
+                        <th>Queue Number:</th>
+                        <th>Date:</th>
+                        <th>From:</th>
+                        <th>From Department:</th>
+                        <th>To Location</th>
+                        <th>Description:</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body">
+
+                </tbody>
+
+ <!---
+  <div class="modal-overlay" id="msgModal">
+    <div class="message-box">
+      <div class="msg-header">
+        <span>Send New Message</span>
+        <button class="close-btn" onclick="closeMessageBox()">&times;</button>
+      </div>
+      <div class="msg-body">
+        <label for="msgText">Type your message below:</label>
+        <textarea id="msgText" placeholder="Write something..."></textarea>
+      </div>
+      <div class="msg-footer">
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('msgModal');
+
+    function openMessageBox() {
+      modal.classList.add('active');
+    }
+
+    function closeMessageBox() {
+      modal.classList.remove('active');
+    }
+
+    function sendMessage() {
+      const text = document.getElementById('msgText').value;
+      if (text.trim() === '') {
+        alert('Please enter a message.');
+        return;
+      }
+      alert('Message sent: ' + text);
+      document.getElementById('msgText').value = '';
+      closeMessageBox();
+  }-->
+  </script>
+</body>
+</html>
