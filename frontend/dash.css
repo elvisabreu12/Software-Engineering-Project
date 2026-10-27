@@ -1,0 +1,326 @@
+/* WHT_RBT dashboard styles.
+   Same colors and fonts as the original dash.css / Q_dash.css, merged into one file.
+   New parts are marked "NEW". */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+[hidden] { display: none !important; }
+
+body {
+  display: flex;
+  height: 100vh;
+  background-color: #fff;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background-color: #1e1e2d;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+  font-size: 20px;
+  color: #fff;
+}
+
+.sidebar a {
+  color: #b5b5c3;
+  text-decoration: none;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar a:hover, .sidebar a.active {
+  background-color: black;
+  color: #fff;
+}
+
+/* NEW: who is logged in + Log Out, pinned to the bottom of the sidebar */
+.sidebar-user {
+  margin-top: auto;
+  border-top: 1px solid #3a3a4f;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-user .who { padding: 0 15px 10px; display: flex; flex-direction: column; gap: 2px; }
+.sidebar-user .who span { color: #fff; font-size: 14px; font-weight: bold; }
+.sidebar-user .who small { color: #b5b5c3; font-size: 12px; }
+.sidebar-user a { margin-bottom: 0; }
+
+/* ---------- Main area ---------- */
+.main-container {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+header {
+  min-height: 70px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 30px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #3f4254;
+}
+
+.btn-msg {
+  display: inline-block;
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.btn-msg:hover { background-color: #2a83e6; }
+
+/* NEW: lighter button used for Clear / Cancel */
+.btn-light {
+  background: #fff;
+  color: #3f4254;
+  border: 1px solid #ccc;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+}
+.btn-light:hover { background: #f8f9fa; }
+
+.content {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* ---------- Stat cards ---------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card h3 {
+  font-size: 14px;
+  color: #b5b5c3;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 24px;
+  font-weight: bold;
+  color: #3f4254;
+}
+
+/* ---------- Sections (white boxes) ---------- */
+.ticket-section {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  min-width: 0;
+}
+
+.ticket-section h3 {
+  font-size: 18px;
+  color: #3f4254;
+  margin-bottom: 4px;
+}
+
+.section-sub {
+  font-size: 13px;
+  color: #8a8a99;
+  margin-bottom: 18px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.search {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 220px;
+}
+
+/* ---------- Form (New Ticket) ---------- */
+.ticket-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 30px;
+}
+
+.field { margin-bottom: 16px; }
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.field input[type="text"], .field select, .field textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+}
+
+.field textarea {
+  height: 120px;
+  resize: vertical;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: lightgray;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+  outline: none;
+}
+
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.actions { display: flex; gap: 12px; margin-top: 8px; }
+
+.msg { font-size: 14px; border-radius: 5px; padding: 10px 12px; margin-bottom: 16px; }
+.msg.error { background: #fdecea; color: #c0392b; }
+.msg.ok { background: #e6f7f6; color: #138d86; }
+
+/* Right-hand "suggestions" panel (placeholder until the AI assistant exists) */
+.ai-panel { background: #f8f9fa; }
+.ai-panel .placeholder {
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 13px;
+  color: #8a8a99;
+  line-height: 1.5;
+}
+
+/* ---------- Tables ---------- */
+.table-wrap { overflow-x: auto; }
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.tbl th, .tbl td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #3f4254;
+}
+
+.tbl th {
+  background-color: #f8f9fa;
+  color: #333;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.tbl tbody tr:hover { background-color: #f9fbfd; }
+.tbl .muted { color: #8a8a99; }
+.empty { padding: 30px 10px; text-align: center; color: #8a8a99; font-size: 14px; }
+
+/* Priority / status badges (colors taken from the original palette) */
+.pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pill-high { background: #fdecea; color: #c0392b; }
+.pill-medium { background: #fff3e0; color: #b9770e; }
+.pill-low { background: #e6f7f6; color: #138d86; }
+.pill-open { background: #e8f1fd; color: #2a83e6; }
+.pill-progress { background: #fff3e0; color: #b9770e; }
+.pill-done { background: #eceff1; color: #6b6f7b; }
+.pill-ok { background: #e6f7f6; color: #138d86; }
+.pill-fail { background: #fdecea; color: #c0392b; }
+
+/* ---------- Tabs (admin) ---------- */
+.tabs { display: flex; gap: 6px; border-bottom: 1px solid #e0e0e0; margin-bottom: 8px; }
+.tab {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #8a8a99;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+.tab.active { color: #1e1e2d; border-bottom-color: black; }
+
+/* ---------- Small screens ---------- */
+@media (max-width: 900px) {
+  body { flex-direction: column; height: auto; min-height: 100vh; }
+  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; padding: 12px 16px; }
+  .sidebar h2 { margin: 0 12px 0 0; }
+  .sidebar a { margin: 0; padding: 8px 12px; }
+  .sidebar-user { margin: 0 0 0 auto; border: 0; padding: 0; flex-direction: row; align-items: center; }
+  .sidebar-user .who { padding: 0 8px; }
+  header { padding: 12px 16px; }
+  .content { padding: 20px 16px; }
+  .ticket-grid { grid-template-columns: 1fr; }
+  .two { grid-template-columns: 1fr; }
+  .search { width: 100%; }
+}
