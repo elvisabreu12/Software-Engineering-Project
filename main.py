@@ -14,7 +14,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # where the React app runs
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000","http://localhost:3001", "http://127.0.0.1:3001"],  # where the React app runs
     allow_methods=["*"],      # allow GET, POST, etc.
     allow_headers=["*"],      # allow headers like Authorization and Content-Type
 )
@@ -30,9 +30,13 @@ class TicketCreate(BaseModel):
     ticket_desc: Optional[str] = None
     priority: str
     category_id: int
-    created_by_user_id: int
 
 class LoginRequest(BaseModel):
+    user_email: str
+    user_password: str
+
+class RegisterRequest(BaseModel):
+    user_name: str
     user_email: str
     user_password: str
 
@@ -78,20 +82,29 @@ def get_current_user(
 
 # Create a new ticket
 @app.post("/tickets")
-def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db)):
+def create_ticket(
+    ticket: TicketCreate,                              # the data the frontend sent (title, description, priority, category)
+    current_user: User = Depends(get_current_user),    # reads the token and gives us the logged-in user (401 if not logged in)
+    db: Session = Depends(get_db),                     # gives us a database session
+):
+    # Check the category exists first, so a bad id gives a clear error instead of a database crash
+    if not db.query(Category).filter(Category.category_id == ticket.category_id).first():
+        raise HTTPException(status_code=400, detail="Unknown category")  # 400 = the request itself was bad
+
     new_ticket = Ticket(
         title=ticket.title,
         ticket_desc=ticket.ticket_desc,
         priority=ticket.priority,
         category_id=ticket.category_id,
-        created_by_user_id=ticket.created_by_user_id,
-        status="Open",
-        created=datetime.now(),
+        created_by_user_id=current_user.user_id,       # comes from the token now, so nobody can create tickets as someone else
+        status="Open",                                 # every new ticket starts as Open
+        created=datetime.now(),                        # set the time in code, because the ORM sends NULL otherwise
     )
-    db.add(new_ticket) # Adds the new ticket to the database session
-    db.commit() # commits the transaction, which inserts the new row into the database
-    db.refresh(new_ticket) # refreshes the new_ticket object with the data from the database, including the auto-generated ticket_id
-    return {"ticket_id": new_ticket.ticket_id, "status": new_ticket.status} # Returns the new ticket's ID and status as a JSON response
+    db.add(new_ticket)       # adds the new ticket to the database session
+    db.commit()              # commits the transaction, which inserts the new row into the database
+    db.refresh(new_ticket)   # reloads the object from the database, including the auto-generated ticket_id
+    return {"ticket_id": new_ticket.ticket_id, "status": new_ticket.status}  # returns the new ticket's id and status as JSON
+
 
 # Login
 @app.post("/login")
@@ -128,6 +141,25 @@ def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
         "token_type": "bearer",
     }
 
+# Register a new user, everyone who registers will become an end user.
+@app.post("/register", status_code=201)
+def register(data: RegisterRequest, db: Session = Depends(get_db)):
+    if len(data.user_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    if db.query(User).filter(User.user_email == data.user_email).first():
+        raise HTTPException(status_code=409, detail="That email is already registered")
+    end_user_role = db.query(Role).filter(Role.role_name == "End User").first()
+    new_user = User(
+        role_id=end_user_role.role_id,
+        user_name=data.user_name,
+        user_email=data.user_email,
+        user_password=hash_password(data.user_password),
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"user_id": new_user.user_id, "user_name": new_user.user_name, "user_email": new_user.user_email}
+
 ###
 ### Endpoints to access the database tables. Each endpoint uses the get_db() dependency to open a database session, 
 ### and then queries the appropriate table. The results are returned as JSON.
@@ -160,9 +192,16 @@ def get_roles(db: Session = Depends(get_db)):
     roles = db.query(Role).all() # fetch every row from the Roles table
     return roles #Returns the list of Role objects as a JSON response
 
-# Users
+# Users (admins only)
 @app.get("/users")
-def get_users(db: Session = Depends(get_db)):
+def get_users(
+    current_user: User = Depends(get_current_user),   # reads the token and gives us the logged-in user (401 if not logged in)
+    db: Session = Depends(get_db),
+):
+    # Only Administrators (access level 3) may list users
+    if current_user.role.access_level < 3:
+        raise HTTPException(status_code=403, detail="You don't have permission to do this")  # 403 = logged in, but not allowed
+
     users = db.query(User).all()
     # Build the response by hand so the password column is never sent out
     return [
