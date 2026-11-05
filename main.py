@@ -31,14 +31,20 @@ class TicketCreate(BaseModel):
     priority: str
     category_id: int
 
+# Pydantic model for login request
 class LoginRequest(BaseModel):
     user_email: str
     user_password: str
 
+# Pydantic model for registering a new user
 class RegisterRequest(BaseModel):
     user_name: str
     user_email: str
     user_password: str
+ 
+# Pydantic model for creating a new comment(both internal and normal)
+class CommentCreate(BaseModel):
+    comment_desc: str
 
 # create the "token reader" once; endpoints use it through Depends(...)
 bearer_scheme = HTTPBearer()
@@ -72,7 +78,21 @@ def get_current_user(
     return user
     # everything checked out: hand the full User object to whoever asked for it
 
+# Helper function: finds a ticket and checks the logged-in user is allowed to see it 
+def get_ticket_for_user(ticket_id: int, current_user: User, db: Session):
+    ticket = db.query(Ticket).filter(Ticket.ticket_id == ticket_id).first()
+    if ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket not found")  # 404 = doesn't exist
+    # End Users (level 1) can only open their own tickets; agents and admins can open any
+    if current_user.role.access_level < 2 and ticket.created_by_user_id != current_user.user_id:
+        raise HTTPException(status_code=403, detail="You don't have access to this ticket")  # 403 = exists, but not yours
+    return ticket
 
+
+# Helper function: stops End Users from using staff-only endpoints
+def require_staff(current_user: User):
+    if current_user.role.access_level < 2:
+        raise HTTPException(status_code=403, detail="You don't have permission to do this")
 
 ###
 ### Endpoints to create new records in the database tables. 
@@ -160,6 +180,49 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return {"user_id": new_user.user_id, "user_name": new_user.user_name, "user_email": new_user.user_email}
 
+# Add a normal comment
+@app.post("/tickets/{ticket_id}/comments", status_code=201)   # 201 = created
+def add_ticket_comment(ticket_id: int, data: CommentCreate,
+                       current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    ticket = get_ticket_for_user(ticket_id, current_user, db) # make sure this user may see the ticket
+    text = data.comment_desc.strip()                       # removes spaces at the start and end
+    if not text:
+        raise HTTPException(status_code=400, detail="Comment can't be empty")
+    now = datetime.now() # set the time in code, because the ORM sends NULL otherwise
+    new_comment = Comment( # create a new Comment object with the data from the request and the current user
+        ticket_id=ticket_id,
+        user_id=current_user.user_id,                      # who wrote it comes from the token, never from the page
+        comment_desc=text,
+        date_created=now,                                  # set in code because the ORM sends NULL otherwise
+    )
+    ticket.updated = now                                   # a new comment counts as an update to the ticket
+    db.add(new_comment)
+    db.commit()
+    db.refresh(new_comment)                                # loads the auto-generated comment_id
+    return {"comment_id": new_comment.comment_id, "ticket_id": ticket_id}
+
+# Add an internal note (agents and admins only)
+@app.post("/tickets/{ticket_id}/internal-comments", status_code=201) # 201 = created
+def add_ticket_internal_comment(ticket_id: int, data: CommentCreate,
+                                current_user: User = Depends(get_current_user), db: Session = Depends(get_db)): # reads the token and gives us the logged-in user (401 if not logged in)
+    require_staff(current_user) # stops End Users from using this endpoint (403 if not allowed)
+    ticket = get_ticket_for_user(ticket_id, current_user, db) # make sure this user may see the ticket
+    text = data.comment_desc.strip() # removes spaces at the start and end
+    if not text:
+        raise HTTPException(status_code=400, detail="Comment can't be empty") # 400 = the request itself was bad
+    now = datetime.now() # set the time in code, because the ORM sends NULL otherwise
+    note = InternalComment( # create a new InternalComment object with the data from the request and the current user
+        ticket_id=ticket_id,
+        user_id=current_user.user_id,
+        internal_comment_desc=text,
+        date_created=now,
+    )
+    ticket.updated = now # a new internal comment counts as an update to the ticket
+    db.add(note)
+    db.commit()
+    db.refresh(note)
+    return {"internal_comment_id": note.internal_comment_id, "ticket_id": ticket_id} 
+
 ###
 ### Endpoints to access the database tables. Each endpoint uses the get_db() dependency to open a database session, 
 ### and then queries the appropriate table. The results are returned as JSON.
@@ -221,10 +284,16 @@ def get_categories(db: Session = Depends(get_db)): # defines a GET endpoint at /
     categories = db.query(Category).all()
     return categories
 
-# Tickets
+# Tickets (list)
 @app.get("/tickets")
-def get_tickets(db: Session = Depends(get_db)): # defines a GET endpoint at /tickets
-    tickets = db.query(Ticket).all()
+def get_tickets(current_user: User = Depends(get_current_user),    # reads the token; 401 if not logged in
+    db: Session = Depends(get_db),):
+
+    query = db.query(Ticket)
+    # End Users (level 1) only get the tickets they created; agents and admins get all of them.
+    if current_user.role.access_level < 2:
+        query = query.filter(Ticket.created_by_user_id == current_user.user_id)
+    tickets = query.order_by(Ticket.ticket_id.desc()).all()   # newest first
     result = []
     for t in tickets:
         result.append({
@@ -234,45 +303,68 @@ def get_tickets(db: Session = Depends(get_db)): # defines a GET endpoint at /tic
             "priority": t.priority,
             "status": t.status,
             "created": t.created,
+            "updated": t.updated,
             "category": t.category.category_name if t.category else None,
             "created_by": t.created_by.user_name if t.created_by else None,
             "assigned_to": t.assigned_to.user_name if t.assigned_to else None,
         })
     return result
 
-# Comments
-@app.get("/comments")
-def get_comments(db: Session = Depends(get_db)): # defines a GET endpoint at /comments
-    comments = db.query(Comment).all()
-    result = []
-    for c in comments:
-        result.append({
-            "comment_id": c.comment_id,
-            "ticket_id": c.ticket_id,
-            "user": c.user.user_name if c.user else None,
-            "comment_desc": c.comment_desc,
-            "date_created": c.date_created,
-        })
-    return result
+# One ticket's details (for the ticket detail page)
+@app.get("/tickets/{ticket_id}")   # {ticket_id} in the URL becomes the ticket_id parameter
+def get_ticket(ticket_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    t = get_ticket_for_user(ticket_id, current_user, db)   # 404 / 403 handled inside the helper
+    return {
+        "ticket_id": t.ticket_id,
+        "title": t.title,
+        "description": t.ticket_desc,
+        "priority": t.priority,
+        "status": t.status,
+        "created": t.created,
+        "updated": t.updated,
+        "closed": t.closed,
+        "category": t.category.category_name if t.category else None,
+        "created_by": t.created_by.user_name if t.created_by else None,
+        "assigned_to": t.assigned_to.user_name if t.assigned_to else None,
+    }
+
+# Comments (normal, not internal)
+# Read the normal comments of one ticket (the requester and IT can both see these)
+@app.get("/tickets/{ticket_id}/comments")
+def get_ticket_comments(ticket_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    get_ticket_for_user(ticket_id, current_user, db)       # make sure this user may see the ticket
+    comments = (db.query(Comment)
+                .filter(Comment.ticket_id == ticket_id)    # only this ticket's comments
+                .order_by(Comment.comment_id)              # oldest first, like a chat
+                .all())
+    return [{
+        "comment_id": c.comment_id,
+        "ticket_id": c.ticket_id,
+        "user": c.user.user_name if c.user else None,
+        "role": c.user.role.role_name if c.user else None,  # lets the page label who is IT and who is the requester
+        "comment_desc": c.comment_desc,
+        "date_created": c.date_created,
+    } for c in comments]
 
 # Internal Comments
-@app.get("/internal-comments")
-def get_internal_comments(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)): # defines a GET endpoint at /internal-comments
-    # End Users (level 1) are not allowed to see internal notes
-    if current_user.role.access_level < 2:
-        raise HTTPException(status_code=403, detail="You don't have permission to do this")
-    
-    comments = db.query(InternalComment).all()
-    result = []
-    for c in comments:
-        result.append({
-            "internal_comment_id": c.internal_comment_id,
-            "ticket_id": c.ticket_id,
-            "user": c.user.user_name if c.user else None,
-            "internal_comment_desc": c.internal_comment_desc,
-            "date_created": c.date_created,
-        })
-    return result
+# Read the internal notes of one ticket (agents and admins only)
+@app.get("/tickets/{ticket_id}/internal-comments")
+def get_ticket_internal_comments(ticket_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    require_staff(current_user)                            # End Users stop here with a 403
+    get_ticket_for_user(ticket_id, current_user, db) # make sure this user may see the ticket
+    comments = (db.query(InternalComment) # query the InternalComments table
+                .filter(InternalComment.ticket_id == ticket_id) # only this ticket's internal comments
+                .order_by(InternalComment.internal_comment_id) # oldest first, like a chat
+                .all())
+    return [{
+        "internal_comment_id": c.internal_comment_id,
+        "ticket_id": c.ticket_id,
+        "user": c.user.user_name if c.user else None,
+        "role": c.user.role.role_name if c.user else None,
+        "internal_comment_desc": c.internal_comment_desc,
+        "date_created": c.date_created,
+    } for c in comments] 
+
 
 # Login Attempts
 @app.get("/login-attempts")
