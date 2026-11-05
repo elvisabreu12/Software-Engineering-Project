@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WHT_RBT Registration</title>
+    <link rel="stylesheet" href="loginpage.css">
+</head>
+
+<body>
+    <div class="main">
+        <h1>WHT_RBT</h1>
+
+        <form id="register-form">
+            <label for="name">
+                Full Name:
+            </label>
+            <input type="text" id="name" name="name"
+                placeholder="Enter your Name" required>
+
+            <label for="email">
+                Email:
+            </label>
+            <input type="email" id="email" name="email"
+                placeholder="Enter your Email" required>
+
+            <label for="password">
+                Password:
+            </label>
+            <input type="password" id="password" name="password"
+                placeholder="At least 8 characters" required>
+            <label for="confirm-password">
+                Confirm Password:
+            </label>
+            <input type="password" id="confirm-password" name="confirm-password"
+                placeholder="Repeat your Password" required>
+
+            <!-- Error messages show up here -->
+            <div id="error" class="error" hidden></div>
+
+            <div class="wrap">
+                <button type="submit" id="submit-btn">
+                    Register
+                </button>
+            </div>
+        </form>
+         <p>Already have an account?
+            <a href="loginpage.html" style="text-decoration: none;">
+                Login here
+            </a>
+
+        </p>
+        <p>
+         <a href="homepage.html" style="text-decoration: none;">
+                Home
+            </a>
+            </p>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // When the form is submitted: POST /register, then log in with the same details
+        document.getElementById("register-form").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const button = document.getElementById("submit-btn");
+            const error = document.getElementById("error");
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            error.hidden = true;
+
+            // Check the two passwords match before bothering the server
+            if (password !== document.getElementById("confirm-password").value) {
+                error.textContent = "Passwords do not match";
+                error.hidden = false;
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = "Creating account...";
+
+            try {
+                await api("/register", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        user_name: document.getElementById("name").value,
+                        user_email: email,
+                        user_password: password,
+                    }),
+                });
+
+                // Account created: log in right away
+                const data = await api("/login", {
+                    method: "POST",
+                    body: JSON.stringify({ user_email: email, user_password: password }),
+                });
+                setToken(data.access_token);
+                window.location.href = "user_Dash.html";
+            } catch (e) {
+                error.textContent = e.message;
+                error.hidden = false;
+                button.disabled = false;
+                button.textContent = "Register";
+            }
+        });
+    </script>
+</body>
+
+</html>
