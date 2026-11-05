@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Dashboard</title>
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>WHT_RBT</h2>
+    <a href="user_Dash.html" id="nav-home" class="active">Home</a>
+    <a href="TIcket_Q.html" id="nav-tickets">Tickets</a>
+
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="#" id="logout">Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div class="header-title">Dashboard Overview</div>
+      <a class="btn-msg" href="TIcket_Q.html">+ New Ticket</a>
+    </header>
+
+    <div class="content">
+      <!-- The numbers come from GET /tickets -->
+      <div class="cards">
+        <div class="card"><h3>Total Tickets</h3><p id="stat-total">-</p></div>
+        <div class="card"><h3>Pending Tickets</h3><p id="stat-pending">-</p></div>
+        <div class="card"><h3>Completed Tickets</h3><p id="stat-done">-</p></div>
+      </div>
+
+      <div class="ticket-section">
+        <div class="section-head">
+          <div>
+            <h3>Recent Tickets</h3>
+            <div class="section-sub" id="recent-sub"></div>
+          </div>
+          <a href="TIcket_Q.html" class="btn-light" style="text-decoration:none;">View all</a>
+        </div>
+        <div id="recent"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    (async function () {
+      const me = await initPage(1);
+      if (!me) return;
+      // Agents and admins get every ticket back from the backend; End Users only their own
+      $("recent-sub").textContent = me.access_level >= 2 ? "All tickets" : "Tickets you created";
+      try {
+        const tickets = await api("/tickets");
+        const s = ticketStats(tickets);
+        $("stat-total").textContent = s.total;
+        $("stat-pending").textContent = s.open + s.progress;
+        $("stat-done").textContent = s.done;
+        $("recent").innerHTML = ticketTable(tickets.slice(0, 5), me.access_level >= 2);
+      } catch (e) {
+        $("recent").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>";
+      }
+    })();
+  </script>
+</body>
+</html>

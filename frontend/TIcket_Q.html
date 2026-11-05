@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Tickets</title>
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>WHT_RBT</h2>
+    <a href="user_Dash.html" id="nav-home">Home</a>
+    <a href="TIcket_Q.html" id="nav-tickets" class="active">Tickets</a>
+
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="#" id="logout">Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div class="header-title">Tickets</div>
+    </header>
+
+    <div class="content">
+
+      <div class="ticket-grid">
+        <!-- Left: the form (title, category, priority, description) -->
+        <div class="ticket-section">
+          <h3>New Ticket</h3>
+          <div class="section-sub">Describe the problem and we'll route it to IT</div>
+
+          <form id="ticket-form">
+            <div class="field">
+              <label for="t-title">Title</label>
+              <input id="t-title" type="text" maxlength="100" placeholder="Short summary of the problem" required>
+            </div>
+
+            <div class="two">
+              <div class="field">
+                <label for="t-category">Category</label>
+                <select id="t-category" required><option value="">Loading...</option></select>
+              </div>
+              <div class="field">
+                <label for="t-priority">Priority</label>
+                <select id="t-priority">
+                  <option>Low</option>
+                  <option selected>Medium</option>
+                  <option>High</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="t-desc">Description</label>
+              <textarea id="t-desc" placeholder="What happened? What have you tried?"></textarea>
+            </div>
+
+            <div id="form-msg" class="msg" hidden></div>
+
+            <div class="actions">
+              <button id="submit-btn" class="btn-msg" type="submit">Submit Ticket</button>
+              <button id="clear-btn" class="btn-light" type="button">Clear</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right: placeholder for the AI suggestions -->
+        <div class="ticket-section ai-panel">
+          <h3>Similar tickets already solved</h3>
+          <div class="section-sub">Suggestions from past resolved tickets</div>
+          <div class="placeholder">
+            The AI assistant isn't connected yet. When it is, matching solved tickets will appear here as you type.
+          </div>
+        </div>
+      </div>
+
+      <!-- Ticket history -->
+      <div class="ticket-section">
+        <div class="section-head">
+          <div>
+            <h3>Ticket History</h3>
+            <div class="section-sub" id="history-sub"></div>
+          </div>
+          <input id="search" class="search" type="text" placeholder="Search tickets">
+        </div>
+        <div id="history"><div class="empty">Loading...</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let me = null;
+    let allTickets = [];
+
+    // Shows a green or red message above the buttons
+    function showMsg(text, kind) {
+      const box = $("form-msg");
+      box.textContent = text;
+      box.className = "msg " + kind;
+      box.hidden = false;
+    }
+
+    // Draws the history table (filtered by the search box)
+    function renderHistory() {
+      const q = $("search").value.trim().toLowerCase();
+      const list = allTickets.filter((t) => !q || (t.title || "").toLowerCase().includes(q));
+      $("history").innerHTML = ticketTable(list, me.access_level >= 2);
+    }
+
+    // GET /tickets
+    async function loadTickets() {
+      try {
+        allTickets = await api("/tickets");
+        renderHistory();
+      } catch (e) {
+        $("history").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>";
+      }
+    }
+
+    // GET /categories -> fills the Category dropdown
+    async function loadCategories() {
+      try {
+        const cats = await api("/categories");
+        $("t-category").innerHTML =
+          '<option value="">Select a category</option>' +
+          cats.map((c) => '<option value="' + esc(c.category_id) + '">' + esc(c.category_name) + "</option>").join("");
+      } catch (e) {
+        showMsg(e.message, "error");
+      }
+    }
+
+    // Submit button -> POST /tickets
+    $("ticket-form").addEventListener("submit", async (ev) => {
+      ev.preventDefault();               // stop the browser from reloading the page
+      const btn = $("submit-btn");
+      $("form-msg").hidden = true;
+      btn.disabled = true;
+      try {
+        await api("/tickets", {
+          method: "POST",
+          body: JSON.stringify({
+            title: $("t-title").value,
+            ticket_desc: $("t-desc").value || null,
+            priority: $("t-priority").value,
+            category_id: Number($("t-category").value),
+          }),
+        });
+        $("ticket-form").reset();
+        showMsg("Ticket submitted.", "ok");
+        loadTickets();                   // refresh the history table
+      } catch (e) {
+        showMsg(e.message, "error");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    $("clear-btn").onclick = () => { $("ticket-form").reset(); $("form-msg").hidden = true; };
+    $("search").addEventListener("input", renderHistory);
+
+    // Runs when the page opens
+    (async function () {
+      me = await initPage(1);
+      if (!me) return;
+      $("history-sub").textContent = me.access_level >= 2 ? "All tickets" : "Tickets you created";
+      loadCategories();
+      loadTickets();
+    })();
+  </script>
+</body>
+</html>

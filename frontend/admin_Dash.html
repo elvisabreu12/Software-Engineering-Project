@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Admin Dashboard</title>
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>WHT_RBT</h2>
+    <a href="admin_Dash.html" id="nav-home" class="active">Home</a>
+    <a href="TIcket_Q.html" id="nav-tickets">Tickets</a>
+
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="#" id="logout">Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div class="header-title">Admin Dashboard Overview</div>
+      <a class="btn-msg" href="TIcket_Q.html">+ New Ticket</a>
+    </header>
+
+    <div class="content">
+      <!-- The numbers come from GET /tickets -->
+      <div class="cards">
+        <div class="card"><h3>Total Tickets</h3><p id="stat-total">-</p></div>
+        <div class="card"><h3>Open Tickets</h3><p id="stat-open">-</p></div>
+        <div class="card"><h3>In Progress</h3><p id="stat-progress">-</p></div>
+        <div class="card"><h3>Completed Tickets</h3><p id="stat-done">-</p></div>
+      </div>
+
+      <div class="ticket-section">
+        <div class="tabs">
+          <button class="tab active" data-tab="tickets">All Tickets</button>
+          <button class="tab" data-tab="users">Users</button>
+          <button class="tab" data-tab="attempts">Login Attempts</button>
+        </div>
+        <div id="tab-body"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Each tab loads its own data from the backend the first time it is opened
+    const cache = {};
+
+    const tabs = {
+      // GET /tickets  (agents and admins get every ticket)
+      tickets: async () => ticketTable(await api("/tickets"), true),
+
+      // GET /users  (admins only)
+      users: async () => {
+        const users = await api("/users");
+        if (!users.length) return '<div class="empty">No users.</div>';
+        return '<div class="table-wrap"><table class="tbl"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Team</th></tr></thead><tbody>' +
+          users.map((u) =>
+            '<tr><td class="muted">#' + esc(u.user_id) + "</td><td>" + esc(u.user_name) + "</td><td>" + esc(u.user_email) +
+            "</td><td>" + esc(u.role) + "</td><td>" + esc(u.user_team || "-") + "</td></tr>").join("") +
+          "</tbody></table></div>";
+      },
+
+      // GET /login-attempts  (admins only)
+      attempts: async () => {
+        const rows = await api("/login-attempts");
+        if (!rows.length) return '<div class="empty">No login attempts yet.</div>';
+        return '<div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Email</th><th>Result</th><th>IP address</th></tr></thead><tbody>' +
+          rows.map((a) =>
+            '<tr><td class="muted">' + esc(timeAgo(a.attempted_at)) + "</td><td>" + esc(a.user_email) + "</td><td>" +
+            (a.is_success ? '<span class="pill pill-ok">Success</span>' : '<span class="pill pill-fail">Failed</span>') +
+            "</td><td>" + esc(a.ip_address || "-") + "</td></tr>").join("") +
+          "</tbody></table></div>";
+      },
+    };
+
+    async function showTab(name) {
+      document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+      $("tab-body").innerHTML = '<div class="empty">Loading...</div>';
+      try {
+        if (!cache[name]) cache[name] = await tabs[name]();
+        $("tab-body").innerHTML = cache[name];
+      } catch (e) {
+        $("tab-body").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>";
+      }
+    }
+
+    document.querySelectorAll(".tab").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+
+    (async function () {
+      const me = await initPage(3);          // admins only
+      if (!me) return;
+      try {
+        const s = ticketStats(await api("/tickets"));
+        $("stat-total").textContent = s.total;
+        $("stat-open").textContent = s.open;
+        $("stat-progress").textContent = s.progress;
+        $("stat-done").textContent = s.done;
+      } catch (e) {}
+      showTab("tickets");
+    })();
+  </script>
+</body>
+</html>
