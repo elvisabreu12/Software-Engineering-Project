@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Ticket</title>
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>WHT_RBT</h2>
+    <a href="user_Dash.html" id="nav-home">Home</a>
+    <a href="TIcket_Q.html" id="nav-tickets" class="active">Tickets</a>
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="#" id="logout">Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div class="header-title" id="page-title">Ticket</div>
+      <a class="btn-light" href="TIcket_Q.html" style="text-decoration:none;">Back to tickets</a>
+    </header>
+    <div class="content" id="content">
+      <div class="empty">Loading...</div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    const id = new URLSearchParams(location.search).get("id");
+    let me = null;
+ 
+    // Draws a list of messages. field = which property holds the text.
+    // Messages written by IT staff get a light blue background so the conversation is easy to follow.
+    function messages(list, field) {
+      if (!list.length) return '<div class="empty">No messages yet.</div>';
+      return list.map((c) => {
+        const staff = c.role && c.role !== "End User";
+        return '<div class="note"' + (staff ? ' style="background:#f3f8ff;padding-left:10px;padding-right:10px;border-radius:6px;"' : "") + ">" +
+          '<div style="white-space:pre-wrap;">' + esc(c[field]) + "</div>" +
+          "<small>" + esc(c.user || "Unknown") + " (" + esc(c.role || "-") + ") · " + esc(timeAgo(c.date_created)) + "</small></div>";
+      }).join("");
+    }
+    async function refreshComments() {
+    try {
+        const list = await api("/tickets/" + id + "/comments");
+
+        // Check what the backend sends
+        console.log("Comments from backend:", list);
+
+        // Make sure the response is an array
+        if (!Array.isArray(list)) {
+            throw new Error("Backend did not return a list of comments.");
+        }
+
+        // Display the comments
+        $("comments").innerHTML = messages(list, "comment_desc");
+
+    } catch (e) {
+        console.error("Error loading comments:", e);
+        $("comments").innerHTML =
+            '<div class="msg error">' + esc(e.message) + '</div>';
+    }
+  
+    }
+   
+ 
+    async function refreshNotes() {
+      const list = await api("/tickets/" + id + "/internal-comments");
+      $("notes").innerHTML = messages(list, "internal_comment_desc");
+    }
+ 
+    // Shows a green or red message inside the box with this id
+    function flash(boxId, text, kind) {
+      const box = $(boxId);
+      box.className = "msg " + kind;
+      box.textContent = text;
+      box.hidden = false;
+    }
+ 
+    // Wires up a "write a message" form: POSTs to url, clears the box, then refreshes the list
+    function wireForm(formId, textId, msgId, url, refresh) {
+      $(formId).onsubmit = async (ev) => {
+        ev.preventDefault();
+        const text = $(textId).value.trim();
+        if (!text) return;
+        $(msgId).hidden = true;
+        try {
+          await api(url, { method: "POST", body: JSON.stringify({ comment_desc: text }) });
+          $(textId).value = "";
+          await refresh();
+        } catch (e) { flash(msgId, e.message, "error"); }
+      };
+    }
+ 
+    async function load() {
+      const t = await api("/tickets/" + encodeURIComponent(id));
+      const staff = me.access_level >= 2;
+      $("page-title").textContent = "Ticket #" + t.ticket_id;
+ 
+      /*Ticket details (+ status dropdown for staff)*/
+      let html =
+        '<div class="ticket-section"><h3>' + esc(t.title) + "</h3>" +
+        '<div class="detail-grid">' +
+          '<div><small>Status</small><span id="status-pill">' + statusPill(t.status) + "</span></div>" +
+          "<div><small>Priority</small>" + priorityPill(t.priority) + "</div>" +
+          "<div><small>Category</small>" + esc(t.category || "-") + "</div>" +
+          "<div><small>Created by</small>" + esc(t.created_by || "-") + "</div>" +
+          "<div><small>Assigned to</small>" + esc(t.assigned_to || "Unassigned") + "</div>" +
+          "<div><small>Created</small>" + esc(timeAgo(t.created)) + "</div>" +
+        "</div>" +
+        '<div class="field"><label>Description</label><div style="white-space:pre-wrap;font-size:14px;">' +
+          esc(t.description || "No description.") + "</div></div>";
+ 
+      if (staff) {
+        html +=
+          '<div class="field" style="max-width:260px;"><label for="status">Change status</label>' +
+          '<select id="status">' +
+          ["Open", "In Progress", "Resolved", "Closed"].map((s) =>
+            "<option" + (s === t.status ? " selected" : "") + ">" + s + "</option>").join("") +
+          "</select></div>" + '<div id="status-msg" class="msg" hidden></div>';
+      }
+      html += "</div>";
+ 
+      //  Conversation: both the requester and IT can write here 
+      html +=
+        '<div class="ticket-section"><h3>Comments</h3>' +
+        '<div class="section-sub">Messages between the requester and IT.</div>' +
+        '<div id="comments"><div class="empty">Loading...</div></div>' +
+        '<form id="comment-form" style="margin-top:16px;">' +
+          '<div class="field"><textarea id="comment-text" placeholder="Write a message..."></textarea></div>' +
+          '<div id="comment-msg" class="msg" hidden></div>' +
+          '<button class="btn-msg" type="submit">Send message</button>' +
+        "</form></div>";
+ 
+      // Internal notes: staff only 
+      if (staff) {
+        html +=
+          '<div class="ticket-section"><h3>Internal notes</h3>' +
+          '<div class="section-sub">Only agents and admins see these. Write what fixed the problem so the chatbot can learn from it.</div>' +
+          '<div id="notes"><div class="empty">Loading...</div></div>' +
+          '<form id="note-form" style="margin-top:16px;">' +
+            '<div class="field"><textarea id="note-text" placeholder="Internal note (not visible to the requester)..."></textarea></div>' +
+            '<div id="note-msg" class="msg" hidden></div>' +
+            '<button class="btn-msg" type="submit">Add internal note</button>' +
+          "</form></div>";
+      }
+ 
+      $("content").innerHTML = html;
+ 
+      if (staff) {
+        $("status").onchange = async () => {
+          try {
+            const r = await api("/tickets/" + id + "/status", { method: "PATCH", body: JSON.stringify({ status: $("status").value }) });
+            $("status-pill").innerHTML = statusPill(r.status);
+            flash("status-msg", "Status updated.", "ok");
+          } catch (e) { flash("status-msg", e.message, "error"); }
+        };
+        wireForm("note-form", "note-text", "note-msg", "/tickets/" + id + "/internal-comments", refreshNotes);
+        refreshNotes().catch((e) => flash("note-msg", e.message, "error"));
+      }
+ 
+      wireForm("comment-form", "comment-text", "comment-msg", "/tickets/" + id + "/comments", refreshComments);
+      refreshComments().catch((e) => flash("comment-msg", e.message, "error"));
+    }
+ 
+    (async function () {
+      me = await initPage(1);
+      if (!me) return;
+      if (!id) { $("content").innerHTML = '<div class="msg error">No ticket selected.</div>'; return; }
+      try { await load(); }
+      catch (e) { $("content").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>"; }
+    })();
+  </script>
+  <script src="chat-widget.js" data-api="http://127.0.0.1:8001/chat"></script>
+</body>
+</html>
