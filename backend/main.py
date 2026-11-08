@@ -302,9 +302,6 @@ def get_categories(db: Session = Depends(get_db)): # defines a GET endpoint at /
 
 # Tickets (list)
 @app.get("/tickets")
-# def get_tickets(db: Session = Depends(get_db)): # defines a GET endpoint at /tickets
-#     tickets = db.query(Ticket).all()
-#     result = []
 def get_tickets(
     current_user: User = Depends(get_current_user),   # must be logged in (401 if not)
     db: Session = Depends(get_db),
