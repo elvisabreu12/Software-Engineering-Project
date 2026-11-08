@@ -324,3 +324,10 @@ header {
   .two { grid-template-columns: 1fr; }
   .search { width: 100%; }
 }
+/* -----clickable tickets-----  */
+.row-link { color: #2a83e6; font-weight: bold; text-decoration: none; }
+.row-link:hover { text-decoration: underline; }
+.note { border-bottom: 1px solid #e0e0e0; padding: 10px 0; font-size: 14px; color: #3f4254; }
+.note small { display: block; color: #8a8a99; margin-top: 4px; }
+.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 16px 0; }
+.detail-grid small { display: block; color: #8a8a99; font-size: 12px; }
