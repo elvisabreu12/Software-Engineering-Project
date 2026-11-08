@@ -10,6 +10,10 @@ const $ = (id) => document.getElementById(id);
 // ---------- The login token (saved in the browser) ----------
 const TOKEN_KEY = "wr_token";
 function getToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
+//added for AI
+const CHAT_KEY = "hd-history";
+function clearChat() { try { sessionStorage.removeItem(CHAT_KEY); } catch (e) {} }
+//
 function setToken(t) { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
 function clearToken() { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
 
