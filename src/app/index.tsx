@@ -58,6 +58,23 @@ function DetailRow({ label, value }) {
   );
 }
 
+function PriorityBadge({ label, color }) {
+  return (
+    <View
+      style={{
+        backgroundColor: color + "22",
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 999,
+        alignSelf: "flex-start",
+        marginTop: 6,
+      }}
+    >
+     <Text style={{ color, fontSize: 12, fontWeight: "700" }}>{label}</Text> 
+    </View>
+  );
+}
+
 const priorityRank = {
   High: 1,
   Medium: 2,
@@ -230,7 +247,7 @@ export default function App() {
           renderItem={({ item }) => (
             <Pressable style={styles.card} onPress={() => setSelectedTicket(item)}>
               <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={[styles.priority, { color: priorityColors[item.priority] }]}>{item.priority}</Text>
+              <PriorityBadge label={item.priority} color={priorityColors[item.priority]} />
               <Text style={styles.cardDesc}>{item.status}</Text>
             </Pressable>
           )}
@@ -260,21 +277,21 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f4f6f8", paddingTop: 60, paddingHorizontal: 16 },
-  header: { fontSize: 28, fontWeight: "bold", marginBottom: 16, textAlign: "center" },
-  detailTitle: { fontSize: 24, fontWeight: "bold", color: "#111827", marginBottom: 16},
-  back: { fontSize: 16, color: "#2563eb", marginBottom: 12 },
-  row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#eee" },
-  detailLabel: { fontSize: 14, color: "#666" },
-  detailValue: { fontSize: 14, fontWeight: "600", color: "#111827" },
-  sectionLabel: { fontSize: 12, color: "#666", marginBottom: 6 },
-  search: {backgroundColor: "white", padding: 16, borderRadius: 15, fontSize: 16, marginBottom: 14, borderWidth: 0.75, borderColor: "#000", color: "#000"},
+  container: { flex: 1, backgroundColor: "#0f172a", paddingTop: 60, paddingHorizontal: 16 },
+  header: { fontSize: 28, fontWeight: "bold", marginBottom: 16, textAlign: "center", color: "#f1f5f9" },
+  detailTitle: { fontSize: 24, fontWeight: "bold", color: "#f1f5f9", marginBottom: 16},
+  back: { fontSize: 16, color: "#3b82f6", marginBottom: 12 },
+  row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#334155" },
+  detailLabel: { fontSize: 14, color: "#94a3b8" },
+  detailValue: { fontSize: 14, fontWeight: "600", color: "#f1f5f9" },
+  sectionLabel: { fontSize: 12, color: "#94a3b8", marginBottom: 6 },
+  search: {backgroundColor: "#1e293b", padding: 16, borderRadius: 15, fontSize: 16, marginBottom: 14, borderWidth: 0.75, borderColor: "#000", color: "#f1f5f9"},
   card: {
-    backgroundColor: "white",
+    backgroundColor: "#1e293b",
     padding: 18,
     borderRadius: 10,
     borderLeftWidth: 8,
-    borderLeftColor: "#2563eb",
+    borderLeftColor: "#3b82f6",
     marginBottom: 14,
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -282,13 +299,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
-  cardTitle: { fontSize: 18, fontWeight: "600", color: "#111827" },
-  cardDesc: { fontSize: 14, color: "#666", marginTop: 4 },
-  count: { fontSize: 14, fontStyle: "italic", color: "#666", marginTop: 4},
+  cardTitle: { fontSize: 18, fontWeight: "600", color: "#f1f5f9" },
+  cardDesc: { fontSize: 14, color: "#f1f5f9", marginTop: 4 },
+  count: { fontSize: 14, fontStyle: "italic", color: "#f1f5f9", marginTop: 4},
   priority: { fontSize: 14, fontWeight: "700"},
   errorText: { fontSize: 14, color: "#dc2626", marginTop: 12, textAlign: "center"},
-  commentRow: {paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#eee"},
-  commentUser: {fontSize: 12, fontWeight: "600", color: "#666", marginBottom: 2}, 
-  sendButton: { backgroundColor: "#2563eb", paddingVertical: 10, borderRadius: 10, alignItems: "center", marginTop: 8},
+  commentRow: {paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#334155"},
+  commentUser: {fontSize: 12, fontWeight: "600", color: "#94a3b8", marginBottom: 2}, 
+  sendButton: { backgroundColor: "#3b82f6", paddingVertical: 10, borderRadius: 10, alignItems: "center", marginTop: 8},
   sendText: { color: "white", fontWeight: "600", fontSize: 14},
 });
