@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+
 
 const categories = [
   { category_id: 1, category_name: "Hardware", category_desc: "Hardware issues" },
   { category_id: 2, category_name: "Software", category_desc: "Software issues" },
   { category_id: 3, category_name: "Cyber Incident", category_desc: "Security Issues" },
 ];
+
+const BACKEND_URL = "http://192.168.1.18:8000";
 
 const tickets = [
   {
@@ -110,6 +113,15 @@ export default function App() {
   const [loginError, setLoginError] = useState(false);
   const [replyText, setReplyText] = useState("");
 
+  const [apiCategories, setApiCategories] = useState([]);
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/categories`)
+      .then((res) => res.json())
+      .then((data) => setApiCategories(data))
+      .catch((error) => console.error("Error fetching categories:", error));
+  }, []);
+
   const sendReply = () => {
     if (replyText.trim() === "") return;
 
@@ -164,6 +176,7 @@ export default function App() {
       </View>
     );
   }
+
 
   if (selectedTicket) {
     return (
@@ -275,7 +288,7 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.header}>Ticket Queues</Text>
       <FlatList
-        data={categories}
+        data={apiCategories.length > 0 ? apiCategories : categories}
         keyExtractor={(item) => String(item.category_id)}
         renderItem={({ item }) => (
           <Pressable style={styles.card} onPress={() => setSelectedQueue(item)}>
