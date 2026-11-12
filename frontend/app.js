@@ -10,6 +10,10 @@ const $ = (id) => document.getElementById(id);
 // ---------- The login token (saved in the browser) ----------
 const TOKEN_KEY = "wr_token";
 function getToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
+//added for AI
+const CHAT_KEY = "hd-history";
+function clearChat() { try { sessionStorage.removeItem(CHAT_KEY); } catch (e) {} }
+//
 function setToken(t) { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
 function clearToken() { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
 
@@ -130,6 +134,7 @@ function ticketTable(list, showPeople) {
   const rows = list.map((t) =>
     "<tr>" +
       '<td class="muted">#' + esc(t.ticket_id) + "</td>" +
+      '<td><a class="row-link" href="ticket.html?id=' + esc(t.ticket_id) + '">' + esc(t.title) + "</a></td>" +
       "<td>" + esc(t.title) + "</td>" +
       "<td>" + esc(t.category || "-") + "</td>" +
       "<td>" + priorityPill(t.priority) + "</td>" +
