@@ -324,10 +324,247 @@ header {
   .two { grid-template-columns: 1fr; }
   .search { width: 100%; }
 }
-/* -----clickable tickets-----  */
-.row-link { color: #2a83e6; font-weight: bold; text-decoration: none; }
-.row-link:hover { text-decoration: underline; }
-.note { border-bottom: 1px solid #e0e0e0; padding: 10px 0; font-size: 14px; color: #3f4254; }
-.note small { display: block; color: #8a8a99; margin-top: 4px; }
-.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 16px 0; }
-.detail-grid small { display: block; color: #8a8a99; font-size: 12px; }
+.app-layout {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+ 
+.comment-sidebar {
+    position: fixed;
+    z-index: 200;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height:100vh;
+    background-color: #fff;
+    border-right: 1px solid;
+    display: flex;
+    flex-direction: column;
+    transform:translateX(100%);
+    transition: transform 0.25s ease;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+}
+.comment-sidebar.open {
+  transform: translateX(0);
+}
+
+.comment-sidebar.closed {
+  margin-left: -750px;
+}
+
+.close-sidebar-btn,
+.toggle-sidebar-btn {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sidebar-header {
+  min-height: 70px;
+  padding: 0 20px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-header h3 {
+  font-size: 16px;
+  color: #3f4254;
+}
+
+.close-sidebar-btn,
+.toggle-sidebar-btn {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #3f4254;
+  cursor: pointer;
+}
+
+.close-sidebar-btn:hover,
+.toggle-sidebar-btn:hover {
+  background-color: #f8f9fa;
+}
+
+.comment-list {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.comment-item {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f5;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background 0.15s;
+}
+
+.comment-item:hover {
+  background-color: #f9fbfd;
+}
+
+.comment-item.active {
+  background-color: #e8f1fd;
+  border-left: 4px solid #2a83e6;
+}
+
+.comment-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #3f4254;
+}
+
+.comment-preview {
+  font-size: 13px;
+  color: #8a8a99;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Header Adjustments for Comment Page */
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Chat Area & Bubbles */
+.chat-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 30px;
+}
+
+.comment-box {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.message {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  word-wrap: break-word;
+}
+
+.message.incoming {
+  align-self: flex-start;
+  background-color: #f0f2f5;
+  color: #3f4254;
+  border-bottom-left-radius: 2px;
+}
+
+.message.outgoing {
+  align-self: flex-end;
+  background-color: #1e1e2d;
+  color: #fff;
+  border-bottom-right-radius: 2px;
+}
+
+/* Input Form */
+.comment-input-area {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.comment-input-area input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+}
+
+.comment-input-area input:focus {
+  border-color: #2a83e6;
+  outline: none;
+}
+
+.btn-send {
+  background-color: black;
+  color: #fff;
+  border: none;
+  padding: 0 22px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-send:hover {
+  background-color: #2a83e6;
+}
+
+/* Responsive behavior for Comment Sidebar */
+@media (max-width: 900px) {
+  .app-layout {
+    height: calc(100vh - 60px);
+    position: relative;
+  }
+ 
+  .chat-wrapper {
+    padding: 12px 16px;
+  }
+
+
+}
+
+.post-with-comments {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* Keeps the comment box aligned to the top while scrolling long posts */
+.post-with-comments .chat-wrapper {
+  position: sticky;
+  top: 20px;
+  height: calc(100vh - 130px);
+  min-height: 450px;
+  padding: 0; /* Overrides the default 20px 30px padding so it fits neatly in the grid */
+  margin: 0;
+  max-width: none;
+}
+
+/* Stack vertically on smaller screens */
+@media (max-width: 900px) {
+  .post-with-comments {
+    grid-template-columns: 1fr;
+  }
+
+  .post-with-comments .chat-wrapper {
+    position: static;
+    height: 500px;
+  }
+}
