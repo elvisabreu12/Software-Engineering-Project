@@ -9,6 +9,7 @@ const categories = [
 ];
 
 const BACKEND_URL = "http://192.168.1.18:8000";
+//const BACKEND_URL = "http://127.0.0.1:8000";
 
 const tickets = [
   {
@@ -96,7 +97,9 @@ const priorityColors = {
 };
 
 const theme = {
-  colors: {},
+  colors: {
+    accent: "#3b82f6",
+  },
 };
 
 const testUser = { email: "andrew@test.com", password: "password123"}
@@ -308,7 +311,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0f172a", paddingTop: 60, paddingHorizontal: 16 },
   header: { fontSize: 28, fontWeight: "bold", marginBottom: 16, textAlign: "center", color: "#f1f5f9" },
   detailTitle: { fontSize: 24, fontWeight: "bold", color: "#f1f5f9", marginBottom: 16},
-  back: { fontSize: 16, color: "#3b82f6", marginBottom: 12 },
+  back: { fontSize: 16, color: theme.colors.accent, marginBottom: 12 },
   row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#334155" },
   detailLabel: { fontSize: 14, color: "#94a3b8" },
   detailValue: { fontSize: 14, fontWeight: "600", color: "#f1f5f9" },
@@ -319,7 +322,7 @@ const styles = StyleSheet.create({
     padding: 18,
     borderRadius: 10,
     borderLeftWidth: 8,
-    borderLeftColor: "#3b82f6",
+    borderLeftColor: theme.colors.accent,
     marginBottom: 14,
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -334,9 +337,9 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 14, color: "#dc2626", marginTop: 12, textAlign: "center"},
   commentRow: {paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#334155"},
   commentUser: {fontSize: 12, fontWeight: "600", color: "#94a3b8", marginBottom: 2}, 
-  sendButton: { backgroundColor: "#3b82f6", paddingVertical: 10, borderRadius: 10, alignItems: "center", marginTop: 8},
+  sendButton: { backgroundColor: theme.colors.accent, paddingVertical: 10, borderRadius: 10, alignItems: "center", marginTop: 8},
   sendText: { color: "white", fontWeight: "600", fontSize: 14},
-  LoginButton: { backgroundColor: "#3b82f6", paddingVertical: 14, borderRadius: 10, alignItems: "center", marginTop: 8},
+  LoginButton: { backgroundColor: theme.colors.accent, paddingVertical: 14, borderRadius: 10, alignItems: "center", marginTop: 8},
   LoginButtonText: { color: "white", fontWeight: "600", fontSize: 16},
   sort: { flexDirection: "row", marginBottom: 14, gap: 8 },
   sortButton: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: "#334155", backgroundColor: "#334155" },
