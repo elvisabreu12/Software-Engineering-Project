@@ -117,6 +117,8 @@ export default function App() {
   const [replyText, setReplyText] = useState("");
 
   const [apiCategories, setApiCategories] = useState([]);
+  const [token, setToken] = useState(null);
+  const [apiTickets, setApiTickets] = useState([]);
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/categories`)
@@ -137,6 +139,44 @@ export default function App() {
 
     selectedTicket.comments = [...(selectedTicket.comments ?? []), newComment];
     setReplyText("");
+  };
+
+    const loginBackend = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_email: email, user_password: password }),
+      });
+      if (!res.ok) {
+        setLoginError(true);
+        return false;
+      }
+      const data = await res.json();
+
+      return data.access_token;
+     
+    } catch (error) {
+      console.error("Error logging in:", error);
+      setLoginError(true);
+      return false;
+    }
+  };
+
+  const loadTickets = async (authToken) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/tickets`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!res.ok) {
+        console.error("Error fetching tickets:", res.status);
+        return;
+      }
+      const data = await res.json();
+      setApiTickets(data);
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+    }
   };
 
   if(!isLoggedIn){
@@ -163,11 +203,12 @@ export default function App() {
 
         <Pressable
           style={styles.LoginButton}
-          onPress={() => {
-            if (email === testUser.email && password === testUser.password) {
+          onPress={async () => {
+            const newToken = await loginBackend();
+            if(newToken){
               setIsLoggedIn(true);
-            } else {
-              setLoginError(true);
+              setLoginError(false);
+              loadTickets(newToken);
             }
           }}
         >
@@ -231,8 +272,8 @@ export default function App() {
   }
 
   if (selectedQueue) {
-    const queueTickets = tickets.filter(
-      (t) => t.category_id === selectedQueue.category_id && t.title.toLowerCase().includes(searchText.toLowerCase())
+    const queueTickets = apiTickets.filter(
+      (t) => t.category === selectedQueue.category_name && t.title.toLowerCase().includes(searchText.toLowerCase())
     );
 
     if (sortBy === "priority") {
