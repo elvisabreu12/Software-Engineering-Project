@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+
 
 const categories = [
   { category_id: 1, category_name: "Hardware", category_desc: "Hardware issues" },
   { category_id: 2, category_name: "Software", category_desc: "Software issues" },
   { category_id: 3, category_name: "Cyber Incident", category_desc: "Security Issues" },
 ];
+
+const BACKEND_URL = "http://192.168.1.18:8000";
+//const BACKEND_URL = "http://127.0.0.1:8000";
 
 const tickets = [
   {
@@ -93,7 +97,9 @@ const priorityColors = {
 };
 
 const theme = {
-  colors: {},
+  colors: {
+    accent: "#3b82f6",
+  },
 };
 
 const testUser = { email: "andrew@test.com", password: "password123"}
@@ -110,6 +116,17 @@ export default function App() {
   const [loginError, setLoginError] = useState(false);
   const [replyText, setReplyText] = useState("");
 
+  const [apiCategories, setApiCategories] = useState([]);
+  const [token, setToken] = useState(null);
+  const [apiTickets, setApiTickets] = useState([]);
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/categories`)
+      .then((res) => res.json())
+      .then((data) => setApiCategories(data))
+      .catch((error) => console.error("Error fetching categories:", error));
+  }, []);
+
   const sendReply = () => {
     if (replyText.trim() === "") return;
 
@@ -122,6 +139,44 @@ export default function App() {
 
     selectedTicket.comments = [...(selectedTicket.comments ?? []), newComment];
     setReplyText("");
+  };
+
+    const loginBackend = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_email: email, user_password: password }),
+      });
+      if (!res.ok) {
+        setLoginError(true);
+        return false;
+      }
+      const data = await res.json();
+
+      return data.access_token;
+     
+    } catch (error) {
+      console.error("Error logging in:", error);
+      setLoginError(true);
+      return false;
+    }
+  };
+
+  const loadTickets = async (authToken) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/tickets`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!res.ok) {
+        console.error("Error fetching tickets:", res.status);
+        return;
+      }
+      const data = await res.json();
+      setApiTickets(data);
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+    }
   };
 
   if(!isLoggedIn){
@@ -147,16 +202,17 @@ export default function App() {
         />
 
         <Pressable
-          style={styles.card}
-          onPress={() => {
-            if (email === testUser.email && password === testUser.password) {
+          style={styles.LoginButton}
+          onPress={async () => {
+            const newToken = await loginBackend();
+            if(newToken){
               setIsLoggedIn(true);
-            } else {
-              setLoginError(true);
+              setLoginError(false);
+              loadTickets(newToken);
             }
           }}
         >
-          <Text style={styles.cardTitle}>Continue</Text>
+          <Text style={styles.LoginButtonText}>Continue</Text>
         </Pressable>
         {loginError && (
           <Text style={styles.errorText}>Email or password is incorrect please try again</Text>
@@ -164,6 +220,7 @@ export default function App() {
       </View>
     );
   }
+
 
   if (selectedTicket) {
     return (
@@ -215,8 +272,8 @@ export default function App() {
   }
 
   if (selectedQueue) {
-    const queueTickets = tickets.filter(
-      (t) => t.category_id === selectedQueue.category_id && t.title.toLowerCase().includes(searchText.toLowerCase())
+    const queueTickets = apiTickets.filter(
+      (t) => t.category === selectedQueue.category_name && t.title.toLowerCase().includes(searchText.toLowerCase())
     );
 
     if (sortBy === "priority") {
@@ -240,6 +297,21 @@ export default function App() {
           onChangeText={setSearchText}
         />
 
+        <View style={styles.sort}>
+          <Pressable
+            style={[styles.sortButton, sortBy === "priority" && styles.sortButtonActive]}
+            onPress={() => setSortBy("priority")}
+          >
+            <Text style={[styles.sortButtonText, sortBy === "priority" && styles.sortButtonTextActive]}>Priority</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.sortButton, sortBy === "status" && styles.sortButtonActive]}
+            onPress={() => setSortBy("status")}
+          >
+            <Text style={[styles.sortButtonText, sortBy === "status" && styles.sortButtonTextActive]}>Status</Text>
+          </Pressable>
+        </View>
+
         <FlatList
           data={queueTickets}
           keyExtractor={(item) => String(item.ticket_id)}
@@ -260,7 +332,7 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.header}>Ticket Queues</Text>
       <FlatList
-        data={categories}
+        data={apiCategories.length > 0 ? apiCategories : categories}
         keyExtractor={(item) => String(item.category_id)}
         renderItem={({ item }) => (
           <Pressable style={styles.card} onPress={() => setSelectedQueue(item)}>
@@ -280,18 +352,18 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0f172a", paddingTop: 60, paddingHorizontal: 16 },
   header: { fontSize: 28, fontWeight: "bold", marginBottom: 16, textAlign: "center", color: "#f1f5f9" },
   detailTitle: { fontSize: 24, fontWeight: "bold", color: "#f1f5f9", marginBottom: 16},
-  back: { fontSize: 16, color: "#3b82f6", marginBottom: 12 },
+  back: { fontSize: 16, color: theme.colors.accent, marginBottom: 12 },
   row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#334155" },
   detailLabel: { fontSize: 14, color: "#94a3b8" },
   detailValue: { fontSize: 14, fontWeight: "600", color: "#f1f5f9" },
   sectionLabel: { fontSize: 12, color: "#94a3b8", marginBottom: 6 },
-  search: {backgroundColor: "#1e293b", padding: 16, borderRadius: 15, fontSize: 16, marginBottom: 14, borderWidth: 0.75, borderColor: "#000", color: "#f1f5f9"},
+  search: {backgroundColor: "#1e293b", padding: 16, borderRadius: 15, fontSize: 16, marginBottom: 14, borderWidth: 0.75, borderColor: "#334155", color: "#f1f5f9"},
   card: {
     backgroundColor: "#1e293b",
     padding: 18,
     borderRadius: 10,
     borderLeftWidth: 8,
-    borderLeftColor: "#3b82f6",
+    borderLeftColor: theme.colors.accent,
     marginBottom: 14,
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -306,6 +378,13 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 14, color: "#dc2626", marginTop: 12, textAlign: "center"},
   commentRow: {paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#334155"},
   commentUser: {fontSize: 12, fontWeight: "600", color: "#94a3b8", marginBottom: 2}, 
-  sendButton: { backgroundColor: "#3b82f6", paddingVertical: 10, borderRadius: 10, alignItems: "center", marginTop: 8},
+  sendButton: { backgroundColor: theme.colors.accent, paddingVertical: 10, borderRadius: 10, alignItems: "center", marginTop: 8},
   sendText: { color: "white", fontWeight: "600", fontSize: 14},
+  LoginButton: { backgroundColor: theme.colors.accent, paddingVertical: 14, borderRadius: 10, alignItems: "center", marginTop: 8},
+  LoginButtonText: { color: "white", fontWeight: "600", fontSize: 16},
+  sort: { flexDirection: "row", marginBottom: 14, gap: 8 },
+  sortButton: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: "#334155", backgroundColor: "#334155" },
+  sortButtonActive: { backgroundColor: "#3b82f6", borderColor: "#3b82f6" },
+  sortButtonText: { color: "#f1f5f9", fontWeight: "600" },
+  sortButtonTextActive: { color: "#f1f5f9" },
 });
