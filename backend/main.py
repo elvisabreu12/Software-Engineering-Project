@@ -14,7 +14,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000","http://localhost:3001"],  # where the React app runs
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000","http://localhost:3001", "http://localhost:3002"],  # where the React app runs
     allow_methods=["*"],      # allow GET, POST, Patch etc.
     allow_headers=["*"],      # allow headers like Authorization and Content-Type
 )
@@ -323,6 +323,7 @@ def get_tickets(
             "updated": t.updated,
             "category": t.category.category_name if t.category else None,
             "created_by": t.created_by.user_name if t.created_by else None,
+            "created_by_id": t.created_by_user_id,
             "assigned_to": t.assigned_to.user_name if t.assigned_to else None,
         })
     return result
@@ -342,6 +343,7 @@ def get_ticket(ticket_id: int, current_user: User = Depends(get_current_user), d
         "closed": t.closed,
         "category": t.category.category_name if t.category else None,
         "created_by": t.created_by.user_name if t.created_by else None,
+        "created_by_id": t.created_by_user_id,
         "assigned_to": t.assigned_to.user_name if t.assigned_to else None,
     }
 # Comments (normal, not internal)

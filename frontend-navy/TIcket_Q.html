@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Tickets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="brand"><span class="mark">W</span><span>WHT_RBT</span></div>
+    <nav>
+      <a href="user_Dash.html" id="nav-home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <div class="nav-group open" id="nav-group">
+        <a href="TIcket_Q.html?view=all" id="nav-tickets" class="nav-parent active" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M13 6v12" stroke-dasharray="2 3"/></svg>Tickets<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav">
+        <a href="TIcket_Q.html?view=new">New Ticket</a>
+        <a href="TIcket_Q.html?view=mine">My Tickets</a>
+        <a href="TIcket_Q.html?view=open">Open</a>
+        <a href="TIcket_Q.html?view=progress">In Progress</a>
+        <a href="TIcket_Q.html?view=done">Resolved</a>
+        <a href="TIcket_Q.html?view=high">High Priority</a>
+        <a href="TIcket_Q.html?view=all" class="staff-only" hidden>All Tickets</a>
+        </div>
+      </div>
+      <div class="nav-group" id="type-group">
+        <a href="TIcket_Q.html?view=all" id="nav-types" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></svg>By Type<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav" id="type-list">
+          <a href="TIcket_Q.html?view=type&type=Hardware">Hardware</a>
+          <a href="TIcket_Q.html?view=type&type=Software">Software</a>
+          <a href="TIcket_Q.html?view=type&type=Network">Network</a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="#" id="logout"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg>Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div class="header-title" id="page-title">Tickets</div>
+    </header>
+
+    <div class="content">
+
+      <div class="ticket-grid" id="new-form" hidden>
+        <!-- Left: the form (title, category, priority, description) -->
+        <div class="ticket-section">
+          <h3>New Ticket</h3>
+          <div class="section-sub">Describe the problem and we'll route it to IT</div>
+
+          <form id="ticket-form">
+            <div class="field">
+              <label for="t-title">Title</label>
+              <input id="t-title" type="text" maxlength="100" placeholder="Short summary of the problem" required>
+            </div>
+
+            <div class="two">
+              <div class="field">
+                <label for="t-category">Category</label>
+                <select id="t-category" required><option value="">Loading...</option></select>
+              </div>
+              <div class="field">
+                <label for="t-priority">Priority</label>
+                <select id="t-priority">
+                  <option>Low</option>
+                  <option selected>Medium</option>
+                  <option>High</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="t-desc">Description</label>
+              <textarea id="t-desc" placeholder="What happened? What have you tried?"></textarea>
+            </div>
+
+            <div id="form-msg" class="msg" hidden></div>
+
+            <div class="actions">
+              <button id="submit-btn" class="btn-msg" type="submit">Submit Ticket</button>
+              <button id="clear-btn" class="btn-light" type="button">Clear</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Ticket history -->
+      <div class="ticket-section">
+        <div class="section-head">
+          <div>
+            <h3 id="history-title">Ticket History</h3>
+            <div class="section-sub" id="history-sub"></div>
+          </div>
+          <input id="search" class="search" type="text" placeholder="Search by title or type">
+        </div>
+        <div id="history"><div class="empty">Loading...</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    let me = null;
+    let allTickets = [];
+
+    // Which list to show. Comes from the sidebar links, e.g. TIcket_Q.html?view=mine
+    const VIEWS = {
+      new:      { title: "New Ticket",       head: "Your recent tickets", sub: "Tickets you created" },
+      mine:     { title: "My Tickets",       head: "My Tickets",          sub: "Tickets you created" },
+      open:     { title: "Open Tickets",     head: "Open Tickets",        sub: "Waiting for IT" },
+      progress: { title: "In Progress",      head: "In Progress",         sub: "IT is working on these" },
+      done:     { title: "Resolved Tickets", head: "Resolved Tickets",    sub: "Resolved or closed" },
+      high:     { title: "High Priority",    head: "High Priority",       sub: "Marked High priority" },
+      all:      { title: "Tickets",          head: "Ticket History",      sub: "" },
+    };
+    const params = new URLSearchParams(location.search);
+    const typeName = params.get("type") || "";
+    if (typeName) VIEWS.type = { title: typeName + " Tickets", head: typeName + " Tickets", sub: "Tickets filed under " + typeName };
+    const wanted = params.get("view");
+    const view = VIEWS[wanted] ? wanted : "all";
+
+    // Is this ticket mine? Compares user ids. Falls back to the name only if the backend does not send ids yet.
+    function isMine(t) {
+      if (t.created_by_id != null && me.user_id != null) return t.created_by_id === me.user_id;
+      return t.created_by === me.user_name;
+    }
+
+    // true if this ticket belongs in the current view
+    function inView(t) {
+      if (view === "mine" || view === "new") return isMine(t);
+      if (view === "open" || view === "progress" || view === "done") return statusGroup(t.status) === view;
+      if (view === "high") return t.priority === "High";
+      if (view === "type") return (t.category || "").toLowerCase() === typeName.toLowerCase();
+      return true;
+    }
+
+    // Shows a green or red message above the buttons
+    function showMsg(text, kind) {
+      const box = $("form-msg");
+      box.textContent = text;
+      box.className = "msg " + kind;
+      box.hidden = false;
+    }
+
+    // Draws the history table (filtered by the search box)
+    function renderHistory() {
+      const q = $("search").value.trim().toLowerCase();
+      const list = allTickets.filter((t) => inView(t) && (!q || (t.title || "").toLowerCase().includes(q) || (t.category || "").toLowerCase().includes(q)));
+      $("history").innerHTML = ticketTable(list, me.access_level >= 2);
+    }
+
+    // GET /tickets
+    async function loadTickets() {
+      try {
+        allTickets = await api("/tickets");
+        renderHistory();
+      } catch (e) {
+        $("history").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>";
+      }
+    }
+
+    // GET /categories -> fills the Category dropdown
+    async function loadCategories() {
+      try {
+        const cats = await api("/categories");
+        $("t-category").innerHTML =
+          '<option value="">Select a category</option>' +
+          cats.map((c) => '<option value="' + esc(c.category_id) + '">' + esc(c.category_name) + "</option>").join("");
+      } catch (e) {
+        showMsg(e.message, "error");
+      }
+    }
+
+    // Submit button -> POST /tickets
+    $("ticket-form").addEventListener("submit", async (ev) => {
+      ev.preventDefault();               // stop the browser from reloading the page
+      const btn = $("submit-btn");
+      $("form-msg").hidden = true;
+      btn.disabled = true;
+      try {
+        await api("/tickets", {
+          method: "POST",
+          body: JSON.stringify({
+            title: $("t-title").value,
+            ticket_desc: $("t-desc").value || null,
+            priority: $("t-priority").value,
+            category_id: Number($("t-category").value),
+          }),
+        });
+        $("ticket-form").reset();
+        showMsg("Ticket submitted.", "ok");
+        loadTickets();                   // refresh the history table
+      } catch (e) {
+        showMsg(e.message, "error");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    $("clear-btn").onclick = () => { $("ticket-form").reset(); $("form-msg").hidden = true; };
+    $("search").addEventListener("input", renderHistory);
+
+    // Runs when the page opens
+    (async function () {
+      me = await initPage(1);
+      if (!me) return;
+      const v = VIEWS[view];
+      $("page-title").textContent = v.title;
+      $("history-title").textContent = v.head;
+      $("history-sub").textContent = view === "all"
+        ? (me.access_level >= 2 ? "All tickets" : "Tickets you created") : v.sub;
+      // The create-ticket form only shows on the "New Ticket" page
+      if (view === "new") { $("new-form").hidden = false; $("t-title").focus(); }
+      loadCategories();
+      loadTickets();
+    })();
+  </script>
+  <script src="chat-widget.js" data-api="http://127.0.0.1:8001/chat"></script>
+</body>
+</html>

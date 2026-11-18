@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="brand"><span class="mark">W</span><span>WHT_RBT</span></div>
+    <nav>
+      <a href="user_Dash.html" id="nav-home" class="active"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <div class="nav-group" id="nav-group">
+        <a href="TIcket_Q.html?view=all" id="nav-tickets" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M13 6v12" stroke-dasharray="2 3"/></svg>Tickets<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav">
+        <a href="TIcket_Q.html?view=new">New Ticket</a>
+        <a href="TIcket_Q.html?view=mine">My Tickets</a>
+        <a href="TIcket_Q.html?view=open">Open</a>
+        <a href="TIcket_Q.html?view=progress">In Progress</a>
+        <a href="TIcket_Q.html?view=done">Resolved</a>
+        <a href="TIcket_Q.html?view=high">High Priority</a>
+        <a href="TIcket_Q.html?view=all" class="staff-only" hidden>All Tickets</a>
+        </div>
+      </div>
+      <div class="nav-group" id="type-group">
+        <a href="TIcket_Q.html?view=all" id="nav-types" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></svg>By Type<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav" id="type-list">
+          <a href="TIcket_Q.html?view=type&type=Hardware">Hardware</a>
+          <a href="TIcket_Q.html?view=type&type=Software">Software</a>
+          <a href="TIcket_Q.html?view=type&type=Network">Network</a>
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="#" id="logout"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg>Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div class="header-title">Dashboard Overview</div>
+      <a class="btn-msg" href="TIcket_Q.html?view=new">+ New Ticket</a>
+    </header>
+
+    <div class="content">
+      <!-- The numbers come from GET /tickets -->
+      <div class="cards">
+        <div class="card"><h3>Total Tickets</h3><p id="stat-total">-</p></div>
+        <div class="card"><h3>Pending Tickets</h3><p id="stat-pending">-</p></div>
+        <div class="card"><h3>Completed Tickets</h3><p id="stat-done">-</p></div>
+      </div>
+
+      <div class="ticket-section">
+        <div class="section-head">
+          <div>
+            <h3>Recent Tickets</h3>
+            <div class="section-sub" id="recent-sub"></div>
+          </div>
+          <a href="TIcket_Q.html?view=all" class="btn-light" style="text-decoration:none;">View all</a>
+        </div>
+        <div id="recent"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    (async function () {
+      const me = await initPage(1);
+      if (!me) return;
+      // Agents and admins get every ticket back from the backend; End Users only their own
+      $("recent-sub").textContent = me.access_level >= 2 ? "All tickets" : "Tickets you created";
+      try {
+        const tickets = await api("/tickets");
+        const s = ticketStats(tickets);
+        $("stat-total").textContent = s.total;
+        $("stat-pending").textContent = s.open + s.progress;
+        $("stat-done").textContent = s.done;
+        $("recent").innerHTML = ticketTable(tickets.slice(0, 5), me.access_level >= 2);
+      } catch (e) {
+        $("recent").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>";
+      }
+    })();
+  </script>
+  <script src="chat-widget.js" data-api="http://127.0.0.1:8001/chat"></script>
+</body>
+</html>

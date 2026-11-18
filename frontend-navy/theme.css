@@ -1,0 +1,13 @@
+:root {
+  --accent: #1E3A8A; --accent-dark: #162D6E; --accent-soft: #E8EDF9;
+  --ink: #1F2D3D; --muted: #6B7686;
+  --line: #E3E8F2; --line-strong: #CFD6E6;
+  --bg: #F4F6FB; --surface: #FFFFFF; --hero-bg: #12275E;
+  --sidebar-bg: #12275E; --sidebar-text: #BFCBEA; --sidebar-brand: #FFFFFF;
+  --sidebar-line: rgba(255,255,255,.14); --sidebar-hover: rgba(255,255,255,.08);
+  --sidebar-active-bg: rgba(255,255,255,.14); --sidebar-active-text: #FFFFFF; --sidebar-active-shadow: none;
+  --good: #1E7A3C; --good-bg: #E4F4E8; --bad: #B3261E; --bad-bg: #FDECEA;
+  --shadow: 0 1px 2px rgba(20,30,50,.04);
+  --font-head: 'Space Grotesk', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}

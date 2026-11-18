@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="loginpage.css">
+</head>
+<body>
+  <div class="auth">
+    <div class="auth-brand">
+      <a class="brand" href="homepage.html"><span class="mark">W</span>WHT_RBT</a>
+      <div>
+        <h2>IT support that remembers.</h2>
+        <p class="lead">Report a problem, follow it to the fix, and get answers from tickets the team has already solved.</p>
+        <ul>
+          <li>Create and track tickets in one place</li>
+          <li>Talk with IT right on the ticket</li>
+          <li>Get suggestions from past solutions</li>
+        </ul>
+      </div>
+      <small>WHT_RBT &middot; WHT_RBT LLC</small>
+    </div>
+    <div class="auth-form">
+      <div class="auth-card">
+        <h1>Welcome back</h1>
+        <p class="sub">Log in to your account to continue.</p>
+        <form id="login-form">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+          <div id="error" class="error" hidden></div>
+          <div class="wrap"><button type="submit" id="submit-btn">Submit</button></div>
+        </form>
+        <p class="alt">Not registered? <a href="registerpage.html">Create an account</a> &middot; <a href="homepage.html">Home</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+        // When the form is submitted: POST /login, save the token, go to the right dashboard
+        document.getElementById("login-form").addEventListener("submit", async function (event) {
+            event.preventDefault();                       // stop the page from reloading
+
+            const button = document.getElementById("submit-btn");
+            const error = document.getElementById("error");
+            error.hidden = true;
+            button.disabled = true;
+            button.textContent = "Logging in...";
+
+            try {
+                const data = await api("/login", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        user_email: document.getElementById("email").value,
+                        user_password: document.getElementById("password").value,
+                    }),
+                });
+
+                setToken(data.access_token);              // keep the token for later requests
+                // Admins go to the admin dashboard, everyone else to the normal one
+                window.location.href = data.access_level >= 3 ? "admin_Dash.html" : "user_Dash.html";
+            } catch (e) {
+                error.textContent = e.message;
+                error.hidden = false;
+                button.disabled = false;
+                button.textContent = "Submit";
+            }
+        });
+    </script>
+</body>
+</html>
