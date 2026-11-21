@@ -1,0 +1,41 @@
+/* Login and register pages: split screen. Colors come from theme.css. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+body { min-height: 100vh; font-family: var(--font-body); color: var(--ink); background: var(--surface); -webkit-font-smoothing: antialiased; }
+h1, h2, .brand { font-family: var(--font-head); }
+.auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 100vh; }
+.auth-brand { background: var(--hero-bg); color: #fff; padding: 48px 56px; display: flex; flex-direction: column; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; color: #fff; text-decoration: none; }
+.brand .mark { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.18); display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.auth-brand h2 { font-size: 38px; line-height: 1.15; font-weight: 700; margin-bottom: 18px; max-width: 420px; }
+.auth-brand p.lead { color: rgba(255,255,255,.8); font-size: 16px; line-height: 1.6; max-width: 420px; margin-bottom: 26px; }
+.auth-brand ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.auth-brand li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: rgba(255,255,255,.92); }
+.auth-brand li::before { content: ""; width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; background: rgba(255,255,255,.2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-6.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/20px no-repeat; }
+.auth-brand small { color: rgba(255,255,255,.6); font-size: 13px; }
+.auth-form { display: flex; align-items: center; justify-content: center; padding: 40px 24px; background: var(--bg); }
+.auth-card { width: 100%; max-width: 400px; }
+.auth-card h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+.auth-card .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 26px; }
+label { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin: 14px 0 6px; }
+input { display: block; width: 100%; padding: 12px 13px; border: 1px solid var(--line-strong); border-radius: 9px; font-size: 15px; background: var(--surface); color: var(--ink); font-family: var(--font-body); }
+input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+button { width: 100%; padding: 13px; margin-top: 22px; border: none; border-radius: 9px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: background .15s; }
+button:hover { background: var(--accent-dark); }
+button:disabled { opacity: .6; cursor: wait; }
+.wrap { display: block; }
+.error { background: var(--bad-bg); color: var(--bad); border-radius: 9px; padding: 10px 12px; margin-top: 16px; font-size: 14px; }
+.alt { margin-top: 22px; font-size: 14px; color: var(--muted); text-align: center; }
+.alt a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.alt a:hover { text-decoration: underline; }
+@media (max-width: 820px) { .auth { grid-template-columns: 1fr; } .auth-brand { padding: 28px 24px; } .auth-brand h2 { font-size: 28px; } .auth-brand ul, .auth-brand small { display: none; } }
+
+/* Merge with the original pages: logo, fog photo panel, top links */
+.auth-brand { background: linear-gradient(rgba(27,64,56,.90), rgba(27,64,56,.84)), url("ohnston_Fog.jpeg") center/cover no-repeat; }
+.brand .mark { overflow: hidden; background: #fff; }
+.brand .mark img { width: 100%; height: 100%; object-fit: contain; padding: 3px; display: block; }
+.auth-form { position: relative; }
+.auth-top { position: absolute; top: 22px; right: 28px; display: flex; gap: 20px; }
+.auth-top a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; }
+.auth-top a:hover, .auth-top a.on { color: var(--accent); }
+@media (max-width: 820px) { .auth-top { position: static; justify-content: center; margin-bottom: 18px; } .auth-form { flex-direction: column; } }

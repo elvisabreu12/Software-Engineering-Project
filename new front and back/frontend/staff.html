@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Staff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <!-- Left sidebar (same on every page). app.js fills in the name and role and hides links the user can't use. -->
+  <div class="sidebar">
+    <div class="brand"><span class="mark"><img src="logo.png" alt="WHT_RBT logo"></span><span>WHT_RBT</span></div>
+    <nav>
+      <a href="user_Dash.html" id="nav-home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <div class="nav-group" id="nav-group">
+        <a href="TIcket_Q.html?view=all" id="nav-tickets" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M13 6v12" stroke-dasharray="2 3"/></svg>Tickets<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav">
+        <a href="TIcket_Q.html?view=new">New Ticket</a>
+        <a href="TIcket_Q.html?view=mine">My Tickets</a>
+        <a href="TIcket_Q.html?view=open">Open</a>
+        <a href="TIcket_Q.html?view=progress">In Progress</a>
+        <a href="TIcket_Q.html?view=done">Resolved</a>
+        <a href="TIcket_Q.html?view=high">High Priority</a>
+        <a href="TIcket_Q.html?view=all" class="staff-only" hidden>All Tickets</a>
+        </div>
+      </div>
+      <div class="nav-group" id="type-group">
+        <a href="TIcket_Q.html?view=all" id="nav-types" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></svg>By Type<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav" id="type-list">
+          <a href="TIcket_Q.html?view=type&type=Hardware">Hardware</a>
+          <a href="TIcket_Q.html?view=type&type=Software">Software</a>
+          <a href="TIcket_Q.html?view=type&type=Network">Network</a>
+        </div>
+      </div>
+      <a href="staff.html" id="nav-staff" class="admin-only active" hidden><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4.5 1.8 4.5 4.5"/></svg>Staff</a>
+      <a href="employees.html" id="nav-employees" class="admin-only" hidden><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.8 3.1-6.5 7-6.5s7 2.7 7 6.5"/></svg>Employees</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="settings.html" id="nav-settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
+      <a href="#" id="logout"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg>Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div class="header-title">Staff</div>
+    </header>
+    <div class="content">
+      <div class="ticket-section">
+        <div class="section-head">
+          <div>
+            <h3>Administrators and agents</h3>
+            <div class="section-sub" id="count" style="margin-bottom:0;">Loading...</div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <label class="tv-chip">Role: <select id="f-role"><option value="">All roles</option></select></label>
+            <input id="search" class="search" type="text" placeholder="Search name, email or skill">
+          </div>
+        </div>
+        <!-- the cards get drawn in here by render() -->
+        <div id="people"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- shared code (api(), initPage(), esc()...) -->
+  <script src="app.js"></script>
+  <script>
+    // how wide the skill bar is for each level (as a % of the full bar)
+    const LEVEL_WIDTH = { Beginner: 33, Intermediate: 66, Expert: 100 };
+    // people = the administrators and agents, each one with their skills
+    let people = [];
+
+    // takes the first letter of the first two words of a name, like "Jane Doe" -> JD (used in the round avatar)
+    function initials(name) {
+      return (name || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    }
+
+    // makes the card for one person: avatar, name, role, email and a bar for each skill
+    function card(p) {
+      const skills = p.skills.length
+        ? p.skills.map((s) =>
+            '<div class="skill-bar"><div class="row"><span>' + esc(s.skill) + "</span><span>" + esc(s.level) +
+            '</span></div><div class="track"><div class="fill" style="width:' + (LEVEL_WIDTH[s.level] || 33) + '%;"></div></div></div>').join("")
+        : '<div class="section-sub" style="margin:0;">No skills listed.</div>';
+      return '<div class="person-card"><div class="person-top"><div class="avatar">' + esc(initials(p.user_name)) + "</div>" +
+        "<div><h3>" + esc(p.user_name) + '<span class="role-pill">' + esc(p.role) + "</span></h3><small>" + esc(p.user_email) +
+        (p.user_team ? " · " + esc(p.user_team) : "") + "</small></div></div>" +
+        "<div>" + skills + "</div>" +
+        '<a class="btn-light" href="profile.html?id=' + esc(p.user_id) + '">View / edit skills</a></div>';
+    }
+
+    // filters the people by role and by what was typed (name, email or a skill), then draws the cards. some() checks if any of their skills match.
+    function render() {
+      const q = $("search").value.trim().toLowerCase();
+      const role = $("f-role").value;
+      const list = people.filter((p) =>
+        (!role || p.role === role) &&
+        (!q || p.user_name.toLowerCase().includes(q) || (p.user_email || "").toLowerCase().includes(q) ||
+          p.skills.some((s) => s.skill.toLowerCase().includes(q))));
+      $("count").textContent = list.length + " of " + people.length + " shown";
+      $("people").innerHTML = list.length ? '<div class="person-grid">' + list.map(card).join("") + "</div>" : '<div class="empty">No one matches.</div>';
+    }
+
+    (async function () {
+      // this page is admins only
+      const me = await initPage(3);          // admins only
+      if (!me) return;
+      try {
+        // GET /users (admins only) -> keep administrators and agents
+        const users = (await api("/users")).filter((u) => u.role !== "End User");
+        // GET /users/{id}/profile -> each person's skills and skill levels
+        // Promise.all runs all the profile requests at the same time and waits for every one. If one fails, that person just gets no skills.
+        people = await Promise.all(users.map(async (u) => {
+          try { const p = await api("/users/" + encodeURIComponent(u.user_id) + "/profile"); return { ...u, skills: p.skills || [] }; }
+          catch (e) { return { ...u, skills: [] }; }
+        }));
+        // fill the Role dropdown with the roles that exist. A Set removes the duplicates.
+        const roles = [...new Set(people.map((p) => p.role))];
+        $("f-role").innerHTML = '<option value="">All roles</option>' + roles.map((r) => "<option>" + esc(r) + "</option>").join("");
+        render();
+      } catch (e) { $("people").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>"; }
+    })();
+    $("search").addEventListener("input", render);
+    $("f-role").addEventListener("change", render);
+  </script>
+  <script src="chat-widget.js" data-api="http://127.0.0.1:8001/chat"></script>
+</body>
+</html>

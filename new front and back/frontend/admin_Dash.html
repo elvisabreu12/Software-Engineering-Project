@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dash.css">
+</head>
+<!-- data-inplace tells app.js to open the ticket links from the sidebar inside this page (in an iframe) instead of leaving the dashboard -->
+<body data-inplace>
+  <!-- Left sidebar (same on every page). app.js fills in the name and role and hides links the user can't use. -->
+  <div class="sidebar">
+    <div class="brand"><span class="mark"><img src="logo.png" alt="WHT_RBT logo"></span><span>WHT_RBT</span></div>
+    <nav>
+      <a href="user_Dash.html" id="nav-home" class="active"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <!-- Tickets menu and By Type menu. The By Type links are replaced by the real categories from the backend. -->
+      <div class="nav-group" id="nav-group">
+        <a href="TIcket_Q.html?view=all" id="nav-tickets" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M13 6v12" stroke-dasharray="2 3"/></svg>Tickets<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav">
+        <a href="TIcket_Q.html?view=new">New Ticket</a>
+        <a href="TIcket_Q.html?view=mine">My Tickets</a>
+        <a href="TIcket_Q.html?view=open">Open</a>
+        <a href="TIcket_Q.html?view=progress">In Progress</a>
+        <a href="TIcket_Q.html?view=done">Resolved</a>
+        <a href="TIcket_Q.html?view=high">High Priority</a>
+        <a href="TIcket_Q.html?view=all">All Tickets</a>
+        </div>
+      </div>
+      <div class="nav-group" id="type-group">
+        <a href="TIcket_Q.html?view=all" id="nav-types" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></svg>By Type<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav" id="type-list">
+          <a href="TIcket_Q.html?view=type&type=Hardware">Hardware</a>
+          <a href="TIcket_Q.html?view=type&type=Software">Software</a>
+          <a href="TIcket_Q.html?view=type&type=Network">Network</a>
+        </div>
+      </div>
+      <a href="staff.html" id="nav-staff" class="admin-only" hidden><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4.5 1.8 4.5 4.5"/></svg>Staff</a>
+      <a href="employees.html" id="nav-employees" class="admin-only" hidden><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.8 3.1-6.5 7-6.5s7 2.7 7 6.5"/></svg>Employees</a>
+    </nav>
+    <!-- who is logged in, settings and log out -->
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="settings.html" id="nav-settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
+      <a href="#" id="logout"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg>Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <!-- top bar. + New Ticket goes to the new ticket form. -->
+    <header>
+      <div class="header-title">Admin Dashboard Overview</div>
+      <a class="btn-msg" href="TIcket_Q.html?view=new">+ New Ticket</a>
+    </header>
+
+    <div class="content">
+      <!-- Shown only when GET /incidents finds something -->
+      <div class="incident-banner" id="incident-banner" hidden>
+        <span id="incident-banner-text"></span>
+        <button type="button" id="incident-banner-btn">View incidents</button>
+      </div>
+      <!-- The numbers come from GET /tickets -->
+      <!-- the 4 number cards. The JS below fills them in. -->
+      <div class="cards">
+        <div class="card"><h3>Total Tickets</h3><p id="stat-total">-</p></div>
+        <div class="card"><h3>Open Tickets</h3><p id="stat-open">-</p></div>
+        <div class="card"><h3>In Progress</h3><p id="stat-progress">-</p></div>
+        <div class="card"><h3>Completed Tickets</h3><p id="stat-done">-</p></div>
+      </div>
+
+      <div class="ticket-section">
+        <!-- each button here is a tab. data-tab matches a name in the tabs object in the script. -->
+        <div class="tabs">
+          <button class="tab active" data-tab="tickets">All Tickets</button>
+          <button class="tab" data-tab="incidents">Incidents </button>
+          <button class="tab" data-tab="users">Users</button>
+          <button class="tab" data-tab="attempts">Login Attempts</button>
+        </div>
+        <!-- the selected tab's content gets put in here -->
+        <div id="tab-body"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- shared code (api(), initPage(), esc()...) has to load before the script below -->
+  <script src="app.js"></script>
+  <script>
+    // Each tab loads its own data from the backend the first time it is opened
+    // cache saves the tabs that were already loaded so they don't ask the backend again
+    const cache = {};
+
+    // one function for each tab. They return the HTML for that tab, and showTab() puts it on the page.
+    const tabs = {
+      // GET /tickets  (agents and admins get every ticket)
+      tickets: async () => ticketTable(await api("/tickets"), true),
+
+      // GET /incidents  (open tickets from the last 24 hours that look like one shared problem)
+      incidents: async () => incidentsHtml(await api("/incidents")),
+
+      // GET /users  (admins only)
+      users: async () => {
+        const users = await api("/users");
+        if (!users.length) return '<div class="empty">No users.</div>';
+        return '<div class="table-wrap"><table class="tbl"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Team</th></tr></thead><tbody>' +
+          users.map((u) =>
+            '<tr><td class="muted">#' + esc(u.user_id) + "</td><td>" + esc(u.user_name) + "</td><td>" + esc(u.user_email) +
+            "</td><td>" + esc(u.role) + "</td><td>" + esc(u.user_team || "-") + "</td></tr>").join("") +
+          "</tbody></table></div>";
+      },
+
+      // GET /login-attempts  (admins only)
+      attempts: async () => {
+        const rows = await api("/login-attempts");
+        if (!rows.length) return '<div class="empty">No login attempts yet.</div>';
+        return '<div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Email</th><th>Result</th><th>IP address</th></tr></thead><tbody>' +
+          rows.map((a) =>
+            '<tr><td class="muted">' + esc(timeAgo(a.attempted_at)) + "</td><td>" + esc(a.user_email) + "</td><td>" +
+            (a.is_success ? '<span class="pill pill-ok">Success</span>' : '<span class="pill pill-fail">Failed</span>') +
+            "</td><td>" + esc(a.ip_address || "-") + "</td></tr>").join("") +
+          "</tbody></table></div>";
+      },
+    };
+
+    // switches tabs: marks the button active, shows Loading..., then puts in the tab's content (or the error message)
+    async function showTab(name) {
+      document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+      $("tab-body").innerHTML = '<div class="empty">Loading...</div>';
+      try {
+        if (!cache[name] || name === "incidents") cache[name] = await tabs[name]();   // incidents are always fetched fresh
+        $("tab-body").innerHTML = cache[name];
+      } catch (e) {
+        $("tab-body").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>";
+      }
+    }
+
+    // clicking a tab button opens that tab
+    document.querySelectorAll(".tab").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
+
+    // runs when the page opens. initPage(3) only lets admins in.
+    (async function () {
+      const me = await initPage(3);          // admins only
+      if (!me) return;
+      try {
+        // fill in the 4 number cards from the tickets
+        const s = ticketStats(await api("/tickets"));
+        $("stat-total").textContent = s.total;
+        $("stat-open").textContent = s.open;
+        $("stat-progress").textContent = s.progress;
+        $("stat-done").textContent = s.done;
+      } catch (e) {}
+      try {
+        // inc = the list of possible incidents
+        const inc = await api("/incidents");
+        $("incident-count").textContent = inc.length;
+        // Stay dismissed (for this browser session) until the incidents change
+        const key = inc.length + "|" + (inc[0] ? inc[0].reason : "");
+        $("incident-banner").dataset.key = key;
+        // check if the person already closed the banner for these same incidents
+        let dismissed = false;
+        try { dismissed = sessionStorage.getItem("wr_incident_dismissed") === key; } catch (e) {}
+        if (inc.length && !dismissed) {
+          $("incident-banner-text").textContent = inc.length + " possible incident" + (inc.length === 1 ? "" : "s") +
+            " detected: " + inc[0].reason + (inc.length > 1 ? " (and more)" : "");
+          $("incident-banner").hidden = false;
+          // the View incidents button opens the Incidents tab
+          $("incident-banner-btn").onclick = () => showTab("incidents");
+        }
+      } catch (e) { $("incident-count").textContent = "0"; }
+      // the All Tickets tab is the one that shows first
+      showTab("tickets");
+    })();
+  </script>
+  <!-- the chatbot window -->
+  <script src="chat-widget.js" data-api="http://127.0.0.1:8001/chat"></script>
+</body>
+</html>

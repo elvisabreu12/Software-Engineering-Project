@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <!-- Left sidebar (same on every page) -->
+  <div class="sidebar">
+    <div class="brand"><span class="mark"><img src="logo.png" alt="WHT_RBT logo"></span><span>WHT_RBT</span></div>
+    <nav>
+      <a href="user_Dash.html" id="nav-home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <div class="nav-group" id="nav-group">
+        <a href="TIcket_Q.html?view=all" id="nav-tickets" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M13 6v12" stroke-dasharray="2 3"/></svg>Tickets<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav">
+        <a href="TIcket_Q.html?view=new">New Ticket</a>
+        <a href="TIcket_Q.html?view=mine">My Tickets</a>
+        <a href="TIcket_Q.html?view=open">Open</a>
+        <a href="TIcket_Q.html?view=progress">In Progress</a>
+        <a href="TIcket_Q.html?view=done">Resolved</a>
+        <a href="TIcket_Q.html?view=high">High Priority</a>
+        <a href="TIcket_Q.html?view=all" class="staff-only" hidden>All Tickets</a>
+        </div>
+      </div>
+      <div class="nav-group" id="type-group">
+        <a href="TIcket_Q.html?view=all" id="nav-types" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></svg>By Type<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav" id="type-list">
+          <a href="TIcket_Q.html?view=type&type=Hardware">Hardware</a>
+          <a href="TIcket_Q.html?view=type&type=Software">Software</a>
+          <a href="TIcket_Q.html?view=type&type=Network">Network</a>
+        </div>
+      </div>
+      <a href="staff.html" id="nav-staff" class="admin-only" hidden><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4.5 1.8 4.5 4.5"/></svg>Staff</a>
+      <a href="employees.html" id="nav-employees" class="admin-only" hidden><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.8 3.1-6.5 7-6.5s7 2.7 7 6.5"/></svg>Employees</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="settings.html" id="nav-settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
+      <a href="#" id="logout"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg>Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <header>
+      <div class="header-title" id="page-title">Profile</div>
+    </header>
+    <!-- render() fills this in once the profile is loaded -->
+    <div class="content" id="content"><div class="empty">Loading...</div></div>
+  </div>
+
+  <!-- shared code (api(), initPage(), esc()...) -->
+  <script src="app.js"></script>
+  <script>
+    // me = the logged in user, profile = the profile being shown, isOwn = true if it is my own profile
+    let me = null, profile = null, isOwn = false;
+    let categories = [];            // category names from GET /categories (the skill choices)
+    // the skill levels the backend accepts
+    const LEVELS = ["Beginner", "Intermediate", "Expert"];
+    // how wide the skill bar is for each level
+    const LEVEL_WIDTH = { Beginner: 33, Intermediate: 66, Expert: 100 };
+
+    // first letters of the name for the round avatar
+    function initials(name) {
+      return (name || "?").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    }
+    function flash(id, text, kind) {
+      const box = $(id); box.className = "msg " + kind; box.textContent = text; box.hidden = false;
+    }
+
+    // One skill row: a dropdown of the ticket categories + a level dropdown + Remove
+    function skillRow(s) {
+      const names = categories.slice();
+      // keep a skill that was saved earlier even if it is not a category name
+      if (s.skill && !names.some((n) => n.toLowerCase() === s.skill.toLowerCase())) names.push(s.skill);
+      return '<div class="field skill-row">' +
+        '<select class="sk-name" aria-label="Skill" style="flex:1 1 200px;min-width:160px;">' +
+        '<option value="">Select a category</option>' +
+        names.map((n) => '<option value="' + esc(n) + '"' + (n.toLowerCase() === (s.skill || "").toLowerCase() ? " selected" : "") + ">" + esc(n) + "</option>").join("") +
+        "</select>" +
+        '<select class="sk-level" aria-label="Level" style="flex:0 0 150px;">' +
+        LEVELS.map((l) => "<option" + (l === s.level ? " selected" : "") + ">" + l + "</option>").join("") +
+        '</select><button type="button" class="btn-light sk-remove" aria-label="Remove skill">Remove</button></div>';
+    }
+
+    // Draws the whole page. My own profile has a form to edit the name and email. Someone else's is read only.
+    // Staff also get a skills section. It has editable rows if it's my own profile or I am an admin, otherwise just bars.
+    function render() {
+      // only agents and admins have skills
+      const staff = profile.access_level >= 2;
+      $("page-title").textContent = isOwn ? "My Profile" : profile.user_name;
+      let html =
+        '<div class="ticket-section">' +
+        '<div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">' +
+          '<div class="avatar lg">' + esc(initials(profile.user_name)) + "</div>" +
+          "<div><h3>" + esc(profile.user_name) + '</h3><div class="section-sub" style="margin:0;">' + esc(profile.role) + "</div></div></div>";
+
+      if (isOwn) {
+        html +=
+          '<form id="profile-form"><div class="two">' +
+          '<div class="field"><label for="p-name">Name</label><input id="p-name" type="text" maxlength="100" value="' + esc(profile.user_name) + '" required></div>' +
+          '<div class="field"><label for="p-email">Email</label><input id="p-email" type="text" value="' + esc(profile.user_email) + '" required></div>' +
+          "</div>" +
+          '<div class="field"><label for="p-role">Role</label><input id="p-role" type="text" value="' + esc(profile.role) + '" readonly></div>' +
+          '<div id="profile-msg" class="msg" hidden></div>' +
+          '<button class="btn-msg" type="submit">Save changes</button></form>';
+      } else {
+        html += '<div class="detail-grid"><div><small>Email</small>' + esc(profile.user_email) + "</div><div><small>Role</small>" + esc(profile.role) + "</div></div>";
+      }
+      html += "</div>";
+
+      if (staff) {
+        // agents can edit their own skills and admins can edit anyone's
+        const canEdit = isOwn || me.access_level >= 3;
+        html += '<div class="ticket-section"><h3>Skills</h3><div class="section-sub">Pick the kinds of issues this person can handle. Used to match new tickets to the right technician.</div>';
+        if (canEdit) {
+          html += '<div id="skills">' + profile.skills.map(skillRow).join("") + "</div>" +
+            '<div id="skills-msg" class="msg" hidden></div>' +
+            '<div class="actions"><button type="button" id="add-skill" class="btn-light">+ Add skill</button>' +
+            '<button type="button" id="save-skills" class="btn-msg">Save skills</button></div>';
+        } else if (!profile.skills.length) {
+          html += '<div class="empty">No skills listed.</div>';
+        } else {
+          html += profile.skills.map((s) =>
+            '<div class="skill-bar"><div class="row"><span>' + esc(s.skill) + '</span><span>' + esc(s.level) +
+            '</span></div><div class="track"><div class="fill" style="width:' + (LEVEL_WIDTH[s.level] || 33) + '%;"></div></div></div>').join("");
+        }
+        html += "</div>";
+      }
+      // the form and buttons only exist after this line, so the code after it connects to them
+      $("content").innerHTML = html;
+
+      // save the name and email with PATCH /profile, then draw the page again
+      if ($("profile-form")) $("profile-form").onsubmit = async (ev) => {
+        ev.preventDefault();
+        try {
+          profile = await api("/profile", { method: "PATCH", body: JSON.stringify({ user_name: $("p-name").value, user_email: $("p-email").value }) });
+          $("me-name").textContent = profile.user_name;
+          render(); flash("profile-msg", "Profile saved.", "ok");
+        } catch (e) { flash("profile-msg", e.message, "error"); }
+      };
+      if ($("add-skill")) {
+        // + Add skill adds one more empty row
+        $("add-skill").onclick = () => $("skills").insertAdjacentHTML("beforeend", skillRow({ skill: "", level: "Intermediate" }));
+        // the Remove button deletes its row
+        $("skills").addEventListener("click", (ev) => { const b = ev.target.closest(".sk-remove"); if (b) b.closest(".skill-row").remove(); });
+        // collects every row (skipping empty ones) and sends the whole list. The backend replaces the old skills with it.
+        $("save-skills").onclick = async () => {
+          const skills = [...document.querySelectorAll(".skill-row")].map((r) => ({
+            skill: r.querySelector(".sk-name").value, level: r.querySelector(".sk-level").value })).filter((s) => s.skill.trim());
+          try {
+            profile = await api("/users/" + profile.user_id + "/skills", { method: "PUT", body: JSON.stringify({ skills }) });
+            render(); flash("skills-msg", "Skills saved.", "ok");
+          } catch (e) { flash("skills-msg", e.message, "error"); }
+        };
+      }
+    }
+
+    (async function () {
+      me = await initPage(1);
+      if (!me) return;
+      // if there is an ?id= in the address and it's not me, show that person's profile. Otherwise show my own.
+      const id = new URLSearchParams(location.search).get("id");
+      try {
+        // GET /categories -> the list of issue types used for the skill dropdown
+        try { categories = (await api("/categories")).map((c) => c.category_name); } catch (e) {}
+        profile = id && Number(id) !== me.user_id ? await api("/users/" + encodeURIComponent(id) + "/profile") : await api("/profile");
+        isOwn = profile.user_id === me.user_id;
+        render();
+      } catch (e) { $("content").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>"; }
+    })();
+  </script>
+  <script src="chat-widget.js" data-api="http://127.0.0.1:8001/chat"></script>
+</body>
+</html>

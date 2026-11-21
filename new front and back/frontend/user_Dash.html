@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHT_RBT Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="dash.css">
+</head>
+<!-- data-inplace tells app.js to open the ticket links from the sidebar inside this page (in an iframe) instead of leaving the dashboard -->
+<body data-inplace>
+  <!-- Left sidebar (same on every page). app.js fills in the name and role and hides links the user can't use. -->
+  <div class="sidebar">
+    <div class="brand"><span class="mark"><img src="logo.png" alt="WHT_RBT logo"></span><span>WHT_RBT</span></div>
+    <nav>
+      <a href="user_Dash.html" id="nav-home" class="active"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <!-- Tickets menu and By Type menu. The By Type links are replaced by the real categories from the backend. -->
+      <div class="nav-group" id="nav-group">
+        <a href="TIcket_Q.html?view=all" id="nav-tickets" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M13 6v12" stroke-dasharray="2 3"/></svg>Tickets<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav">
+        <a href="TIcket_Q.html?view=new">New Ticket</a>
+        <a href="TIcket_Q.html?view=mine">My Tickets</a>
+        <a href="TIcket_Q.html?view=open">Open</a>
+        <a href="TIcket_Q.html?view=progress">In Progress</a>
+        <a href="TIcket_Q.html?view=done">Resolved</a>
+        <a href="TIcket_Q.html?view=high">High Priority</a>
+        <a href="TIcket_Q.html?view=all">All Tickets</a>
+        </div>
+      </div>
+      <div class="nav-group" id="type-group">
+        <a href="TIcket_Q.html?view=all" id="nav-types" class="nav-parent" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></svg>By Type<svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></a>
+        <div class="subnav" id="type-list">
+          <a href="TIcket_Q.html?view=type&type=Hardware">Hardware</a>
+          <a href="TIcket_Q.html?view=type&type=Software">Software</a>
+          <a href="TIcket_Q.html?view=type&type=Network">Network</a>
+        </div>
+      </div>
+      <a href="staff.html" id="nav-staff" class="admin-only" hidden><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4.5 1.8 4.5 4.5"/></svg>Staff</a>
+      <a href="employees.html" id="nav-employees" class="admin-only" hidden><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.8 3.1-6.5 7-6.5s7 2.7 7 6.5"/></svg>Employees</a>
+    </nav>
+    <!-- who is logged in, settings and log out -->
+    <div class="sidebar-user">
+      <div class="who"><span id="me-name"></span><small id="me-role"></small></div>
+      <a href="settings.html" id="nav-settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
+      <a href="#" id="logout"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4"/><path d="M16 8l4 4-4 4"/><path d="M20 12H9"/></svg>Log Out</a>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <!-- top bar. + New Ticket goes to the new ticket form. -->
+    <header>
+      <div class="header-title">Dashboard Overview</div>
+      <a class="btn-msg" href="TIcket_Q.html?view=new">+ New Ticket</a>
+    </header>
+
+    <div class="content">
+      <!-- The numbers come from GET /tickets -->
+      <!-- the number cards. The JS below fills them in. -->
+      <div class="cards">
+        <div class="card"><h3>Total Tickets</h3><p id="stat-total">-</p></div>
+        <div class="card"><h3>Pending Tickets</h3><p id="stat-pending">-</p></div>
+        <div class="card"><h3>Completed Tickets</h3><p id="stat-done">-</p></div>
+      </div>
+
+      <!-- Agents and admins only: GET /incidents -->
+      <div class="ticket-section" id="incident-section" hidden>
+        <div class="section-head">
+          <div>
+            <h3>Possible incidents</h3>
+            <div class="section-sub">Open tickets from the last 24 hours that look like one shared problem</div>
+          </div>
+        </div>
+        <div id="incidents"><div class="empty">Loading...</div></div>
+      </div>
+
+      <div class="ticket-section">
+        <div class="section-head">
+          <div>
+            <h3>Recent Tickets</h3>
+            <div class="section-sub" id="recent-sub"></div>
+          </div>
+          <a href="TIcket_Q.html?view=all" class="btn-light" style="text-decoration:none;">View all</a>
+        </div>
+        <!-- the 5 newest tickets go here -->
+        <div id="recent"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- shared code (api(), initPage(), esc()...) has to load before the script below -->
+  <script src="app.js"></script>
+  <script>
+    // runs when the page opens. initPage(1) lets any logged in user in.
+    (async function () {
+      const me = await initPage(1);
+      if (!me) return;
+      // Agents and admins get every ticket back from the backend; End Users only their own
+      $("recent-sub").textContent = me.access_level >= 2 ? "All tickets" : "Tickets you created";
+      // only agents and admins can see the possible incidents (the backend blocks end users anyway)
+      if (me.access_level >= 2) {
+        $("incident-section").hidden = false;
+        api("/incidents").then((list) => { $("incidents").innerHTML = incidentsHtml(list); })
+          .catch((e) => { $("incidents").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>"; });
+      }
+      try {
+        // fill in the cards. Pending = open + in progress. Then show only the first 5 tickets in the table.
+        const tickets = await api("/tickets");
+        const s = ticketStats(tickets);
+        $("stat-total").textContent = s.total;
+        $("stat-pending").textContent = s.open + s.progress;
+        $("stat-done").textContent = s.done;
+        $("recent").innerHTML = ticketTable(tickets.slice(0, 5), me.access_level >= 2);
+      } catch (e) {
+        $("recent").innerHTML = '<div class="msg error">' + esc(e.message) + "</div>";
+      }
+    })();
+  </script>
+  <!-- the chatbot window -->
+  <script src="chat-widget.js" data-api="http://127.0.0.1:8001/chat"></script>
+</body>
+</html>

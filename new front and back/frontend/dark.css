@@ -1,0 +1,25 @@
+/* WHT_RBT dark theme (dark.css).
+   Loaded by app.js on every page. Nothing changes unless <html data-theme="dark">.
+   The teal theme runs on CSS variables, so dark mode just swaps those variables. */
+/* These are the same variables from theme.css with dark colors. Since the whole site uses var(--...), they change everywhere. */
+html[data-theme="dark"] {
+  --accent: #4FB39F; --accent-dark: #3E9684; --accent-soft: #1A332E;
+  --ink: #ECEBE7; --muted: #A09C92;
+  --line: #2A2D2B; --line-strong: #3A3E3B;
+  --bg: #121513; --surface: #1A1D1B; --hero-bg: #0F2A25;
+  --sidebar-bg: #0E1110; --sidebar-text: #B4B0A6; --sidebar-brand: #F1F0EC;
+  --sidebar-line: #232624; --sidebar-hover: #1A1D1B;
+  --sidebar-active-bg: #1A332E; --sidebar-active-text: #6FD0BB;
+  --good: #6FD08C; --good-bg: #16301F; --bad: #FF8D80; --bad-bg: #3A1D22;
+  --shadow: 0 1px 2px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+/* a few things use fixed colors (not variables), so they need their own dark version */
+html[data-theme="dark"] .btn-msg, html[data-theme="dark"] .btn-msg:hover { color: #0E1110; }
+html[data-theme="dark"] .pill-high { background: #3A1D22; color: #FF8D80; }
+html[data-theme="dark"] .pill-medium, html[data-theme="dark"] .pill-progress { background: #3A2D14; color: #F0B660; }
+html[data-theme="dark"] .pill-low, html[data-theme="dark"] .pill-ok { background: #16301F; color: #6FD08C; }
+html[data-theme="dark"] .pill-done { background: #262B2A; color: #AAB0AE; }
+html[data-theme="dark"] .pill-fail { background: #3A1D22; color: #FF8D80; }
+html[data-theme="dark"] .brand .mark { background: #E9F2EE; }
+html[data-theme="dark"] .seg button.on { color: #0E1110; }
