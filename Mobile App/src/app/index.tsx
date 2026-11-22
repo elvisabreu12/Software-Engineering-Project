@@ -263,7 +263,12 @@ export default function App() {
     return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <ScrollView keyboardShouldPersistTaps="handled">
-        <Pressable onPress={() => setSelectedTicket(null)}>
+        <Pressable
+          onPress={() => {
+            setSelectedTicket(null);
+            setTicketComments([]);
+          }}
+        > 
           <Text style={styles.back}>← Back</Text>
         </Pressable>
         <Text style={styles.detailTitle}>{selectedTicket.title}</Text>
@@ -384,7 +389,7 @@ export default function App() {
             <Text style={styles.cardTitle}>{item.category_name}</Text>
             <Text style={styles.cardDesc}>{item.category_desc}</Text>
             <Text style={styles.count}>
-              {tickets.filter((t) => t.category_id === item.category_id).length} tickets
+              {apiTickets.filter((t) => t.category === item.category_name).length} tickets
             </Text>
           </Pressable>
         )}
