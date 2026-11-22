@@ -91,7 +91,8 @@ const priorityRank = {
 // Status rankings that are used to sort tickets by status.
 const statusRank = {
   Open: 1,
-  Closed: 2,
+  InProgress: 2,
+  Closed: 3,
 };
 
 // Colors for each priority level.
