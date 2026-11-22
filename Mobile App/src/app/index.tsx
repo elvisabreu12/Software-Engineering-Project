@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
-
+// Hardcoded categories and tickets for demonstration purposes. In a real application, these would be fetched from a backend API.
 const categories = [
   { category_id: 1, category_name: "Hardware", category_desc: "Hardware issues" },
   { category_id: 2, category_name: "Software", category_desc: "Software issues" },
@@ -9,8 +9,9 @@ const categories = [
 ];
 
 const BACKEND_URL = "http://192.168.1.18:8000";
-//const BACKEND_URL = "http://127.0.0.1:8000";
+//const BACKEND_URL = "http://100.65.41.67:8000";
 
+// Hardcoded tickets for demonstration purposes. In a real application, these would be fetched from a backend API.
 const tickets = [
   {
     ticket_id: 1,
@@ -52,7 +53,7 @@ const tickets = [
 ];
 
 
-
+// DetailRow component to display a label and its value in a row. Used in the ticket detail view to show ticket properties like priority, status, etc.
 function DetailRow({ label, value }) {
   return (
     <View style={styles.row}>
@@ -62,6 +63,7 @@ function DetailRow({ label, value }) {
   );
 }
 
+// PriorityBadge component to display a badge on ticket with priority level. The badge color changes based on the priority level (High, Medium, Low).
 function PriorityBadge({ label, color }) {
   return (
     <View
@@ -79,33 +81,42 @@ function PriorityBadge({ label, color }) {
   );
 }
 
+// Priority rankings that are used to sort tickets by priority.
 const priorityRank = {
   High: 1,
   Medium: 2,
   Low: 3,
 };
 
+// Status rankings that are used to sort tickets by status.
 const statusRank = {
   Open: 1,
   Closed: 2,
 };
 
+// Colors for each priority level.
 const priorityColors = {
   High: "#dc2626",
   Medium: "#f59e0b",
   Low: "#16a34a",
 };
 
+// Theme object that defines the accent color used throughout the app. Can be changed to quickly update the accent color in the app.
 const theme = {
   colors: {
     accent: "#3b82f6",
   },
 };
 
+// Hardcoded test user credentials for demonstration purposes. In a real application, user authentication would be handled securely with a backend API.
 const testUser = { email: "andrew@test.com", password: "password123"}
 
 
+
+// MAIN app component.
 export default function App() {
+
+  // State variables.
   const [selectedQueue, setSelectedQueue] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [searchText, setSearchText] = useState("");
@@ -116,10 +127,13 @@ export default function App() {
   const [loginError, setLoginError] = useState(false);
   const [replyText, setReplyText] = useState("");
 
+  // State variables for API data and authentication token.
   const [apiCategories, setApiCategories] = useState([]);
   const [token, setToken] = useState(null);
   const [apiTickets, setApiTickets] = useState([]);
+  const [ticketComments, setTicketComments] = useState([]); 
 
+  // Fetch categories from the backend API when the component mounts.
   useEffect(() => {
     fetch(`${BACKEND_URL}/categories`)
       .then((res) => res.json())
@@ -127,6 +141,7 @@ export default function App() {
       .catch((error) => console.error("Error fetching categories:", error));
   }, []);
 
+  // Function to send a reply to a selected ticket.
   const sendReply = () => {
     if (replyText.trim() === "") return;
 
@@ -141,6 +156,7 @@ export default function App() {
     setReplyText("");
   };
 
+    // Function to log in by sending a request to the backend.
     const loginBackend = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/login`, {
@@ -162,9 +178,11 @@ export default function App() {
       return false;
     }
   };
-
+  
+  // Function to load tickets from the backend.
   const loadTickets = async (authToken) => {
     try {
+      setTicketComments([]);
       const res = await fetch(`${BACKEND_URL}/tickets`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
@@ -179,6 +197,24 @@ export default function App() {
     }
   };
 
+  // Function to load comments for a specific ticket from the backend.
+  const loadComments = async (ticketId, authToken) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/tickets/${ticketId}/comments`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!res.ok) {
+        console.error("Error fetching comments:", res.status);
+        return;
+      }
+      const data = await res.json();
+      setTicketComments(data);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
+
+  // If the user is not logged in, show the login form.
   if(!isLoggedIn){
     return (
       <View style={styles.container}>
@@ -206,6 +242,7 @@ export default function App() {
           onPress={async () => {
             const newToken = await loginBackend();
             if(newToken){
+              setToken(newToken);
               setIsLoggedIn(true);
               setLoginError(false);
               loadTickets(newToken);
@@ -221,7 +258,7 @@ export default function App() {
     );
   }
 
-
+  // If a ticket is selected, show the ticket detail view.
   if (selectedTicket) {
     return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -241,12 +278,12 @@ export default function App() {
 
         <View style={styles.card}>
           <Text style={styles.sectionLabel}>Description</Text>
-          <Text style={styles.cardDesc}>{selectedTicket.ticket_desc}</Text>
+          <Text style={styles.cardDesc}>{selectedTicket.description ?? selectedTicket.ticket_desc}</Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.sectionLabel}>Comments</Text>
-          {(selectedTicket.comments ?? []).map((c) => (
+          {ticketComments.map((c) => (
             <View key={c.comment_id} style={styles.commentRow}>
               <Text style={styles.commentUser}>{c.user} · {c.date_created} </Text>
               <Text style={styles.cardDesc}>{c.comment_desc}</Text>
@@ -271,6 +308,7 @@ export default function App() {
     );
   }
 
+  // If a queue is selected, show the tickets in that queue.
   if (selectedQueue) {
     const queueTickets = apiTickets.filter(
       (t) => t.category === selectedQueue.category_name && t.title.toLowerCase().includes(searchText.toLowerCase())
@@ -317,7 +355,13 @@ export default function App() {
           keyExtractor={(item) => String(item.ticket_id)}
           ListEmptyComponent={<Text style={styles.cardDesc}>No tickets in this queue.</Text>}
           renderItem={({ item }) => (
-            <Pressable style={styles.card} onPress={() => setSelectedTicket(item)}>
+            <Pressable
+              style={styles.card}
+              onPress={() => {
+                setSelectedTicket(item);
+                loadComments(item.ticket_id, token);
+              }}
+            > 
               <Text style={styles.cardTitle}>{item.title}</Text>
               <PriorityBadge label={item.priority} color={priorityColors[item.priority]} />
               <Text style={styles.cardDesc}>{item.status}</Text>
@@ -328,6 +372,7 @@ export default function App() {
     );
   }
 
+  
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Ticket Queues</Text>
@@ -348,6 +393,8 @@ export default function App() {
   );
 }
 
+
+// Styles for app, defines how the app looks visually.
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0f172a", paddingTop: 60, paddingHorizontal: 16 },
   header: { fontSize: 28, fontWeight: "bold", marginBottom: 16, textAlign: "center", color: "#f1f5f9" },
