@@ -102,6 +102,17 @@ const priorityColors = {
   Low: "#16a34a",
 };
 
+function formatDate(value) {
+  if (!value) return "Unknown";
+  return new Date(value).toLocaleString("en-US", {
+    month:"short",
+    day:"numeric",
+    year:"numeric",
+    hour:"numeric",
+    minute:"numeric",
+  });
+}
+
 // Theme object that defines the accent color used throughout the app. Can be changed to quickly update the accent color in the app.
 const theme = {
   colors: {
@@ -279,7 +290,7 @@ export default function App() {
           <DetailRow label="Status" value={selectedTicket.status} />
           <DetailRow label="Assigned to" value={selectedTicket.assigned_to ?? "Unassigned"} />
           <DetailRow label="Created by" value={selectedTicket.created_by} />
-          <DetailRow label="Created" value={selectedTicket.created} />
+          <DetailRow label="Created" value={formatDate(selectedTicket.created)} />
         </View>
 
         <View style={styles.card}>
