@@ -8,8 +8,8 @@ const categories = [
   { category_id: 3, category_name: "Cyber Incident", category_desc: "Security Issues" },
 ];
 
-const BACKEND_URL = "http://192.168.1.18:8000";
-//const BACKEND_URL = "http://100.65.41.67:8000";
+//const BACKEND_URL = "http://192.168.1.18:8000";
+const BACKEND_URL = "http://100.65.41.67:8000";
 
 // Hardcoded tickets for demonstration purposes. In a real application, these would be fetched from a backend API.
 const tickets = [
@@ -102,6 +102,7 @@ const priorityColors = {
   Low: "#16a34a",
 };
 
+// Function to format date into a readable string. If date is null/undefined, return "Unknown".
 function formatDate(value) {
   if (!value) return "Unknown";
   return new Date(value).toLocaleString("en-US", {
@@ -138,12 +139,24 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState(false);
   const [replyText, setReplyText] = useState("");
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   // State variables for API data and authentication token.
   const [apiCategories, setApiCategories] = useState([]);
   const [token, setToken] = useState(null);
   const [apiTickets, setApiTickets] = useState([]);
   const [ticketComments, setTicketComments] = useState([]); 
+
+  // Function to log out the user. Resets all relevant state variables and sets sessionExpired to true.
+  const logout = () => {
+    setIsLoggedIn(false);
+    setToken(null);
+    setSelectedQueue(null);
+    setSelectedTicket(null);
+    setApiTickets([]);
+    setTicketComments([]);
+    setSessionExpired(true);
+  };
 
   // Fetch categories from the backend API when the component mounts.
   useEffect(() => {
@@ -198,6 +211,13 @@ export default function App() {
       const res = await fetch(`${BACKEND_URL}/tickets`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
+
+      // Handle unauthorized access by logging out the user and showing an error message.
+      if (res.status === 401) {
+        console.error("Unauthorized access. Please log in again.");
+        logout();
+        return;
+      }
       if (!res.ok) {
         console.error("Error fetching tickets:", res.status);
         return;
@@ -215,6 +235,13 @@ export default function App() {
       const res = await fetch(`${BACKEND_URL}/tickets/${ticketId}/comments`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
+
+      // Handle unauthorized access by logging out the user and showing an error message.
+      if (res.status === 401) {
+        console.error("Unauthorized access. Please log in again.");
+        logout();
+        return;
+      }
       if (!res.ok) {
         console.error("Error fetching comments:", res.status);
         return;
@@ -236,8 +263,8 @@ export default function App() {
           placeholder="Email"
           placeholderTextColor="#9ca3af"
           autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
+          keyboardType="email-address" 
+          value={email} 
           onChangeText={setEmail}
         />
         <TextInput
@@ -257,6 +284,7 @@ export default function App() {
               setToken(newToken);
               setIsLoggedIn(true);
               setLoginError(false);
+              setSessionExpired(false);
               loadTickets(newToken);
             }
           }}
@@ -265,6 +293,9 @@ export default function App() {
         </Pressable>
         {loginError && (
           <Text style={styles.errorText}>Email or password is incorrect please try again</Text>
+        )}
+        {sessionExpired && (
+          <Text style={styles.errorText}>Session expired, please log in again</Text>
         )}
       </View>
     );
@@ -295,7 +326,7 @@ export default function App() {
 
         <View style={styles.card}>
           <Text style={styles.sectionLabel}>Description</Text>
-          <Text style={styles.cardDesc}>{selectedTicket.description ?? selectedTicket.ticket_desc}</Text>
+          <Text style={styles.cardDesc}>{selectedTicket.description}</Text>
         </View>
 
         <View style={styles.card}>
